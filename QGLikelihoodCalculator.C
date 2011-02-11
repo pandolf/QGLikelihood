@@ -8,6 +8,9 @@
 
 
 
+void getBins_int( int nBins_total, Double_t* Lower, Double_t xmin, Double_t xmax, bool plotLog=true);
+
+
 
 
 // constructor:
@@ -32,7 +35,8 @@ float QGLikelihoodCalculator::computeQGLikelihood( float pt, int nCharged, int n
 
   const int nBinsPlusOne(nPtBins_+1);
   Double_t ptBins[nBinsPlusOne];
-  fitTools::getBins_int( nBinsPlusOne, ptBins, 15., 1000. );
+  //fitTools::getBins_int( nBinsPlusOne, ptBins, 15., 1000. );
+  getBins_int( nBinsPlusOne, ptBins, 15., 1000. );
 
 
   if( pt>ptBins[nPtBins_] ) {
@@ -103,3 +107,27 @@ float QGLikelihoodCalculator::likelihoodProduct( float nCharged, float nNeutral,
   return likeliProd;
 
 }
+
+
+void getBins_int( int nBins_total, Double_t* Lower, Double_t xmin, Double_t xmax, bool plotLog) {
+
+  Double_t Lower_exact;
+  int nBins = nBins_total-1;
+  const double dx = (plotLog) ? pow((xmax / xmin), (1. / (double)nBins)) : ((xmax - xmin) / (double)nBins);
+  Lower[0] = xmin;
+  Lower_exact = Lower[0];
+  for (int i = 1; i != nBins; ++i) {
+
+    if (plotLog) {
+      Lower_exact *= dx;
+      Lower[i] = TMath::Ceil(Lower_exact);
+    } else {
+      Lower[i] = TMath::Ceil(Lower[i-1] + dx);
+    }
+
+  }
+
+  Lower[nBins] = xmax;
+
+}
+
