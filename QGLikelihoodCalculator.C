@@ -79,7 +79,8 @@ float QGLikelihoodCalculator::computeQGLikelihood( float pt, int nCharged, int n
   float gluonP = likelihoodProduct( nCharged, nNeutral, ptD, rmsCand, h1_nCharged_gluon, h1_nNeutral_gluon, h1_ptD_gluon, h1_rmsCand_gluon );
   float quarkP = likelihoodProduct( nCharged, nNeutral, ptD, rmsCand, h1_nCharged_quark, h1_nNeutral_quark, h1_ptD_quark, h1_rmsCand_quark );
 
-  float QGLikelihood = gluonP / (gluonP + quarkP );
+  //float QGLikelihood = gluonP / (gluonP + quarkP );
+  float QGLikelihood = quarkP / (gluonP + quarkP );
 
   return QGLikelihood;
 
