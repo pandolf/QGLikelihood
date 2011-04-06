@@ -8,6 +8,7 @@
 
 
 
+
 void getBins_int( int nBins_total, Double_t* Lower, Double_t xmin, Double_t xmax, bool plotLog=true);
 
 
@@ -24,6 +25,14 @@ QGLikelihoodCalculator::QGLikelihoodCalculator( const std::string& fileName, int
 }
 
 
+
+
+
+float QGLikelihoodCalculator::computeQGLikelihood( float pt, int nCharged, int nNeutral, float ptD ) {
+
+  return this->computeQGLikelihood( pt, nCharged, nNeutral, ptD, -1. );
+
+}
 
 
 
@@ -61,9 +70,9 @@ float QGLikelihoodCalculator::computeQGLikelihood( float pt, int nCharged, int n
   TH1F* h1_nCharged_quark = (TH1F*)histoFile_->Get(histoName);
 
   sprintf( histoName, "nNeutral_gluon_pt%.0f_%.0f", ptMin, ptMax);
-  TH1F* h1_nNeutral_gluon = (TH1F*)histoFile_->Get(histoName);
+  TH1F* h1_nNeutral_gluon = (nNeutral>0) ? (TH1F*)histoFile_->Get(histoName) : 0;
   sprintf( histoName, "nNeutral_quark_pt%.0f_%.0f", ptMin, ptMax);
-  TH1F* h1_nNeutral_quark = (TH1F*)histoFile_->Get(histoName);
+  TH1F* h1_nNeutral_quark = (nNeutral>0) ? (TH1F*)histoFile_->Get(histoName) : 0;
 
   sprintf( histoName, "ptD_gluon_pt%.0f_%.0f", ptMin, ptMax);
   TH1F* h1_ptD_gluon = (ptD>=0.) ? (TH1F*)histoFile_->Get(histoName) : 0;
@@ -90,20 +99,22 @@ float QGLikelihoodCalculator::computeQGLikelihood( float pt, int nCharged, int n
 float QGLikelihoodCalculator::likelihoodProduct( float nCharged, float nNeutral, float ptD, float rmsCand, TH1F* h1_nCharged, TH1F* h1_nNeutral, TH1F* h1_ptD, TH1F* h1_rmsCand) {
 
   h1_nCharged->Scale(1./h1_nCharged->Integral("width"));
-  h1_nNeutral->Scale(1./h1_nNeutral->Integral("width"));
+  if( h1_nNeutral!=0 )
+    h1_nNeutral->Scale(1./h1_nNeutral->Integral("width"));
   if( h1_ptD!=0 )
     h1_ptD->Scale(1./h1_ptD->Integral("width"));
   if( h1_rmsCand!=0 )
     h1_rmsCand->Scale(1./h1_rmsCand->Integral("width"));
 
-  float likeliProd =  h1_nCharged->GetBinContent(h1_nCharged->FindBin(nCharged))*
-                      h1_nNeutral->GetBinContent(h1_nNeutral->FindBin(nNeutral));
 
+  float likeliProd =  h1_nCharged->GetBinContent(h1_nCharged->FindBin(nCharged));
+  if( h1_nNeutral!=0 )
+    likeliProd*=h1_nNeutral->GetBinContent(h1_nNeutral->FindBin(nNeutral));
   if( h1_ptD!=0 )
     likeliProd*=h1_ptD->GetBinContent(h1_ptD->FindBin(ptD));
-
   if( h1_rmsCand!=0 )
     likeliProd*=h1_rmsCand->GetBinContent(h1_rmsCand->FindBin(rmsCand));
+
 
   return likeliProd;
 

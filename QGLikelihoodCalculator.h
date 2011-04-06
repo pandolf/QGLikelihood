@@ -21,6 +21,7 @@ class QGLikelihoodCalculator {
   QGLikelihoodCalculator( const std::string& fileName="QG_QCD_Pt_15to3000_TuneZ2_Flat_7TeV_pythia6_Fall10.root", int nPtBins=20 );
   virtual ~QGLikelihoodCalculator() {};
 
+  float computeQGLikelihood( float pt, int nCharged, int nNeutral, float ptD );
   float computeQGLikelihood( float pt, int nCharged, int nNeutral, float ptD, float rmsCand );
   float likelihoodProduct( float nCharged, float nNeutral, float ptD, float rmsCand, TH1F* h1_nCharged, TH1F* h1_nNeutral, TH1F* h1_ptD, TH1F* h1_rmsCand);
 
