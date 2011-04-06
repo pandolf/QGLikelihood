@@ -53,7 +53,7 @@ float QGLikelihoodCalculator::computeQGLikelihood( float pt, int nCharged, int n
     ptMax = ptBins[nPtBins_];
   } else {
     for( unsigned int iBin=0; iBin<nPtBins_; ++iBin ) {
-      if( pt>ptBins[iBin] && pt<ptBins[iBin+1] ) {
+      if( pt>ptBins[iBin] && pt<=ptBins[iBin+1] ) {
         ptMin = ptBins[iBin];
         ptMax = ptBins[iBin+1];
       } //if
