@@ -16,7 +16,7 @@ void getBins_int( int nBins_total, Double_t* Lower, Double_t xmin, Double_t xmax
 
 // constructor:
 
-QGLikelihoodCalculator::QGLikelihoodCalculator( const std::string& fileName, int nPtBins ) {
+QGLikelihoodCalculator::QGLikelihoodCalculator( const std::string& fileName, unsigned int nPtBins ) {
 
   histoFile_ = TFile::Open(fileName.c_str());
 
@@ -43,7 +43,8 @@ float QGLikelihoodCalculator::computeQGLikelihood( float pt, int nCharged, int n
   float ptMax = 0.;
 
   const int nBinsPlusOne(nPtBins_+1);
-  Double_t ptBins[nBinsPlusOne];
+  //Double_t ptBins[nBinsPlusOne];
+  Double_t* ptBins = new Double_t[nBinsPlusOne];
   //fitTools::getBins_int( nBinsPlusOne, ptBins, 15., 1000. );
   getBins_int( nBinsPlusOne, ptBins, 15., 1000. );
 
@@ -90,6 +91,8 @@ float QGLikelihoodCalculator::computeQGLikelihood( float pt, int nCharged, int n
 
   //float QGLikelihood = gluonP / (gluonP + quarkP );
   float QGLikelihood = quarkP / (gluonP + quarkP );
+
+  delete[] ptBins;
 
   return QGLikelihood;
 
