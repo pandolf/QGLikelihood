@@ -93,6 +93,14 @@ float QGLikelihoodCalculator::computeQGLikelihood( float pt, int nCharged, int n
   float QGLikelihood = quarkP / (gluonP + quarkP );
 
   delete[] ptBins;
+  if(h1_nCharged_gluon) delete h1_nCharged_gluon;
+  if(h1_nCharged_quark) delete h1_nCharged_quark;
+  if(h1_nNeutral_gluon) delete h1_nNeutral_gluon;
+  if(h1_nNeutral_quark) delete h1_nNeutral_quark;
+  if(h1_ptD_gluon) delete h1_ptD_gluon;
+  if(h1_ptD_quark) delete h1_ptD_quark;
+  if(h1_rmsCand_gluon) delete h1_rmsCand_gluon;
+  if(h1_rmsCand_quark) delete h1_rmsCand_quark;
 
   return QGLikelihood;
 
