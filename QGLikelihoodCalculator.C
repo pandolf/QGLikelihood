@@ -138,7 +138,7 @@ float QGLikelihoodCalculator::computeQGLikelihoodPU( float pt, float rhoPF, int 
 
   const int nRhoBinsPlusOne(nRhoBins_+1);
   Double_t rhoBins[nRhoBinsPlusOne];
-  getBins( nRhoBinsPlusOne, rhoBins, 0., 20., false );
+  getBins( nRhoBinsPlusOne, rhoBins, 0., 17., false );
 
   int rhoBin=-1;
 
