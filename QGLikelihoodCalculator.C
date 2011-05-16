@@ -37,7 +37,8 @@ float QGLikelihoodCalculator::computeQGLikelihood( float pt, int nCharged, int n
   float ptMax = 0.;
 
   const int nPtBinsPlusOne(nPtBins_+1);
-  Double_t ptBins[nPtBinsPlusOne];
+  //Double_t ptBins[nPtBinsPlusOne];
+  Double_t* ptBins = new Double_t[nPtBinsPlusOne];
   getBins_int( nPtBinsPlusOne, ptBins, 15., 1000. );
 
 
@@ -111,8 +112,7 @@ float QGLikelihoodCalculator::computeQGLikelihoodPU( float pt, float rhoPF, int 
   float ptMax = 0.;
 
   const int nPtBinsPlusOne(nPtBins_+1);
-  Double_t ptBins[nPtBinsPlusOne];
-  //fitTools::getBins_int( nPtBinsPlusOne, ptBins, 15., 1000. );
+  Double_t* ptBins = new Double_t[nPtBinsPlusOne];
   getBins_int( nPtBinsPlusOne, ptBins, 15., 1000. );
 
 
@@ -137,7 +137,7 @@ float QGLikelihoodCalculator::computeQGLikelihoodPU( float pt, float rhoPF, int 
   //then look for rho bin:
 
   const int nRhoBinsPlusOne(nRhoBins_+1);
-  Double_t rhoBins[nRhoBinsPlusOne];
+  Double_t* rhoBins = new Double_t[nRhoBinsPlusOne];
   getBins( nRhoBinsPlusOne, rhoBins, 0., 17., false );
 
   int rhoBin=-1;
@@ -181,6 +181,17 @@ float QGLikelihoodCalculator::computeQGLikelihoodPU( float pt, float rhoPF, int 
   float quarkP = likelihoodProduct( nCharged, nNeutral, ptD, rmsCand, h1_nCharged_quark, h1_nNeutral_quark, h1_ptD_quark, h1_rmsCand_quark );
 
   float QGLikelihood = quarkP / (gluonP + quarkP );
+
+  delete[] ptBins;
+  delete[] rhoBins;
+  if(h1_nCharged_gluon) delete h1_nCharged_gluon;
+  if(h1_nCharged_quark) delete h1_nCharged_quark;
+  if(h1_nNeutral_gluon) delete h1_nNeutral_gluon;
+  if(h1_nNeutral_quark) delete h1_nNeutral_quark;
+  if(h1_ptD_gluon) delete h1_ptD_gluon;
+  if(h1_ptD_quark) delete h1_ptD_quark;
+  if(h1_rmsCand_gluon) delete h1_rmsCand_gluon;
+  if(h1_rmsCand_quark) delete h1_rmsCand_quark;
 
   return QGLikelihood;
 
