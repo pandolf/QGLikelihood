@@ -11,6 +11,7 @@
 
 #include "TFile.h"
 #include "TH1F.h"
+#include <map>
 
 
 
@@ -19,7 +20,7 @@ class QGLikelihoodCalculator {
  public:
 
   QGLikelihoodCalculator( const std::string& fileName="QG_QCD_Pt-15to3000_TuneZ2_Flat_7TeV_pythia6_Summer11-PU_S3_START42_V11-v2.root", unsigned nPtBins=20, unsigned int nRhoBins=17 );
-  virtual ~QGLikelihoodCalculator() {};
+   ~QGLikelihoodCalculator();
 
   float computeQGLikelihood( float pt, int nCharged, int nNeutral, float ptD, float rmsCand=-1. );
   float computeQGLikelihoodPU( float pt, float rhoPF, int nCharged, int nNeutral, float ptD, float rmsCand=-1. );
@@ -31,7 +32,7 @@ class QGLikelihoodCalculator {
  private:
 
   TFile* histoFile_;
-
+  std::map<std::string,TH1F*> plots_;
   unsigned int nPtBins_;
   unsigned int nRhoBins_;
 
