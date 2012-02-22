@@ -7,6 +7,9 @@
 //
 // ------------------------------------------------------------
 
+#ifndef QGLikelihoodCalculator_h
+#define QGLikelihoodCalculator_h
+
 #include <string>
 
 #include "TFile.h"
@@ -38,3 +41,5 @@ class QGLikelihoodCalculator {
 
 };
 
+
+#endif
