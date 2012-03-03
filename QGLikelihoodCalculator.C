@@ -47,9 +47,9 @@ float QGLikelihoodCalculator::computeQGLikelihood( float pt, int nCharged, int n
   float ptMax = 0.;
 
   const int nPtBinsPlusOne(nPtBins_+1);
-  //Double_t ptBins[nPtBinsPlusOne];
   Double_t* ptBins = new Double_t[nPtBinsPlusOne];
-  getBins_int( nPtBinsPlusOne, ptBins, 15., 1000. );
+  getBins_int( nPtBins_, ptBins, 20., 1262. );
+  ptBins[nPtBins_] = 3500.;
 
 
   if( pt>ptBins[nPtBins_] ) {
@@ -121,7 +121,8 @@ float QGLikelihoodCalculator::computeQGLikelihoodPU( float pt, float rhoPF, int 
 
   const int nPtBinsPlusOne(nPtBins_+1);
   Double_t* ptBins = new Double_t[nPtBinsPlusOne];
-  getBins_int( nPtBinsPlusOne, ptBins, 15., 1000. );
+  getBins_int( nPtBins_, ptBins, 20., 1262. );
+  ptBins[nPtBins_] = 3500.;
 
 
   if( pt>=ptBins[nPtBins_] ) {
