@@ -207,7 +207,7 @@ float QGLikelihoodCalculator::computeQGLikelihoodPU( float pt, float rhoPF, int 
   float gluonP = likelihoodProduct( nCharged, nNeutral, ptD, rmsCand, h1_nCharged_gluon, h1_nNeutral_gluon, h1_ptD_gluon, h1_rmsCand_gluon );
   float quarkP = likelihoodProduct( nCharged, nNeutral, ptD, rmsCand, h1_nCharged_quark, h1_nNeutral_quark, h1_ptD_quark, h1_rmsCand_quark );
 
-  float QGLikelihood = quarkP / (gluonP + quarkP );
+  float QGLikelihood = ( (gluonP+quarkP) > 0. ) ? quarkP / (gluonP + quarkP ) : -1.;
 
   delete[] ptBins;
   delete[] rhoBins;
@@ -228,7 +228,7 @@ float QGLikelihoodCalculator::computeQGLikelihoodPU( float pt, float rhoPF, int 
 
 
 
-/*
+
 
 float QGLikelihoodCalculator::computeQGLikelihoodFwd( float pt, float rhoPF, float ptD, float rmsCand ) {
 
@@ -284,65 +284,50 @@ float QGLikelihoodCalculator::computeQGLikelihoodFwd( float pt, float rhoPF, flo
 
 
   char histoName[300];
-  sprintf( histoName, "rhoBins_pt%.0f_%.0f/nCharged_gluon_pt%.0f_%.0f_rho%d", ptMin, ptMax, ptMin, ptMax, rhoBin);
-	if(plots_[histoName]==NULL)
-		plots_[histoName]=(TH1F*)histoFile_->Get(histoName)->Clone();
-  	TH1F* h1_nCharged_gluon = plots_[histoName];
-  sprintf( histoName, "rhoBins_pt%.0f_%.0f/nCharged_quark_pt%.0f_%.0f_rho%d", ptMin, ptMax, ptMin, ptMax, rhoBin);
-	if(plots_[histoName]==NULL)
-		plots_[histoName]=(TH1F*)histoFile_->Get(histoName)->Clone();
-  	TH1F* h1_nCharged_quark = plots_[histoName];
-
-  sprintf( histoName, "rhoBins_pt%.0f_%.0f/nNeutral_gluon_pt%.0f_%.0f_rho%d", ptMin, ptMax, ptMin, ptMax, rhoBin);
-	if(plots_[histoName]==NULL)
-		plots_[histoName]=(TH1F*)histoFile_->Get(histoName)->Clone();
-  	TH1F* h1_nNeutral_gluon = plots_[histoName];
-
-  sprintf( histoName, "rhoBins_pt%.0f_%.0f/nNeutral_quark_pt%.0f_%.0f_rho%d", ptMin, ptMax, ptMin, ptMax, rhoBin);
-	if(plots_[histoName]==NULL)
-		plots_[histoName]=(TH1F*)histoFile_->Get(histoName)->Clone();
-  	TH1F* h1_nNeutral_quark = plots_[histoName];
-
-  sprintf( histoName, "rhoBins_pt%.0f_%.0f/ptD_gluon_pt%.0f_%.0f_rho%d", ptMin, ptMax, ptMin, ptMax, rhoBin);
+  sprintf( histoName, "rhoBins_pt%.0f_%.0f/ptD_gluon_eta35_pt%.0f_%.0f_rho%d", ptMin, ptMax, ptMin, ptMax, rhoBin);
 	if(plots_[histoName]==NULL && ptD>=0.)
 		plots_[histoName]=(TH1F*)histoFile_->Get(histoName)->Clone();
   	TH1F* h1_ptD_gluon = (ptD>=0.) ? plots_[histoName] : 0;
-  sprintf( histoName, "rhoBins_pt%.0f_%.0f/ptD_quark_pt%.0f_%.0f_rho%d", ptMin, ptMax, ptMin, ptMax, rhoBin);
+  sprintf( histoName, "rhoBins_pt%.0f_%.0f/ptD_quark_eta35_pt%.0f_%.0f_rho%d", ptMin, ptMax, ptMin, ptMax, rhoBin);
 	if(plots_[histoName]==NULL && ptD>=0.)
 	plots_[histoName]=(TH1F*)histoFile_->Get(histoName)->Clone();
   	TH1F* h1_ptD_quark = (ptD>=0.) ? plots_[histoName] : 0;
 
-  sprintf( histoName, "rhoBins_pt%.0f_%.0f/rmsCand_gluon_pt%.0f_%.0f_rho%d", ptMin, ptMax, ptMin, ptMax, rhoBin);
+  sprintf( histoName, "rhoBins_pt%.0f_%.0f/rmsCand_gluon_eta35_pt%.0f_%.0f_rho%d", ptMin, ptMax, ptMin, ptMax, rhoBin);
 	if(plots_[histoName]==NULL && rmsCand>=0.)
 	plots_[histoName]=(TH1F*)histoFile_->Get(histoName)->Clone();
   	TH1F* h1_rmsCand_gluon = (rmsCand>=0.) ? plots_[histoName] : 0;
-  sprintf( histoName, "rhoBins_pt%.0f_%.0f/rmsCand_quark_pt%.0f_%.0f_rho%d", ptMin, ptMax, ptMin, ptMax, rhoBin);
+  sprintf( histoName, "rhoBins_pt%.0f_%.0f/rmsCand_quark_eta35_pt%.0f_%.0f_rho%d", ptMin, ptMax, ptMin, ptMax, rhoBin);
 	if(plots_[histoName]==NULL && rmsCand>=0.)
 	plots_[histoName]=(TH1F*)histoFile_->Get(histoName)->Clone();
   	TH1F* h1_rmsCand_quark = (rmsCand>=0.) ? plots_[histoName]: 0;
 
 
-  float gluonP = likelihoodProduct( nCharged, nNeutral, ptD, rmsCand, h1_nCharged_gluon, h1_nNeutral_gluon, h1_ptD_gluon, h1_rmsCand_gluon );
-  float quarkP = likelihoodProduct( nCharged, nNeutral, ptD, rmsCand, h1_nCharged_quark, h1_nNeutral_quark, h1_ptD_quark, h1_rmsCand_quark );
+  std::vector<float> vars;
+  vars.push_back( ptD );
+  vars.push_back( rmsCand );
 
-  float QGLikelihood = quarkP / (gluonP + quarkP );
+  std::vector<TH1F*> histos_gluon;
+  histos_gluon.push_back( h1_ptD_gluon );
+  histos_gluon.push_back( h1_rmsCand_gluon );
+
+  std::vector<TH1F*> histos_quark;
+  histos_quark.push_back( h1_ptD_quark );
+  histos_quark.push_back( h1_rmsCand_quark );
+
+  float gluonP = likelihoodProduct( vars, histos_gluon );
+  float quarkP = likelihoodProduct( vars, histos_quark );
+
+  float QGLikelihood = ( (gluonP+quarkP) > 0. ) ? quarkP / (gluonP + quarkP ) : -1.;
 
   delete[] ptBins;
   delete[] rhoBins;
- // if(h1_nCharged_gluon) delete h1_nCharged_gluon;
- // if(h1_nCharged_quark) delete h1_nCharged_quark;
- // if(h1_nNeutral_gluon) delete h1_nNeutral_gluon;
- // if(h1_nNeutral_quark) delete h1_nNeutral_quark;
- // if(h1_ptD_gluon) delete h1_ptD_gluon;
- // if(h1_ptD_quark) delete h1_ptD_quark;
- // if(h1_rmsCand_gluon) delete h1_rmsCand_gluon;
- // if(h1_rmsCand_quark) delete h1_rmsCand_quark;
 
   return QGLikelihood;
 
 }
 
-*/
+
 
 
 
@@ -367,6 +352,22 @@ float QGLikelihoodCalculator::likelihoodProduct( float nCharged, float nNeutral,
   if( h1_rmsCand!=0 )
     likeliProd*=h1_rmsCand->GetBinContent(h1_rmsCand->FindBin(rmsCand));
 
+
+  return likeliProd;
+
+}
+
+
+float QGLikelihoodCalculator::likelihoodProduct( const std::vector<float>& vars, const std::vector<TH1F*>& histos ) {
+
+  for( unsigned iHisto=0; iHisto<histos.size(); ++iHisto ) 
+    if( histos[iHisto]!=0 ) histos[iHisto]->Scale(1./histos[iHisto]->Integral("width"));
+
+
+  float likeliProd = 1.;
+
+  for( unsigned iHisto=0; iHisto<histos.size(); ++iHisto )
+    if( histos[iHisto]!=0 ) likeliProd*=histos[iHisto]->GetBinContent(histos[iHisto]->FindBin(vars[iHisto]));
 
   return likeliProd;
 

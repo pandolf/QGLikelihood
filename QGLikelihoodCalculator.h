@@ -27,7 +27,9 @@ class QGLikelihoodCalculator {
 
   float computeQGLikelihood( float pt, int nCharged, int nNeutral, float ptD, float rmsCand=-1. );
   float computeQGLikelihoodPU( float pt, float rhoPF, int nCharged, int nNeutral, float ptD, float rmsCand=-1. );
+  float computeQGLikelihoodFwd( float pt, float rhoPF, float ptD, float rmsCand );
 
+  float likelihoodProduct( const std::vector<float>& vars, const std::vector<TH1F*>& histos );
   float likelihoodProduct( float nCharged, float nNeutral, float ptD, float rmsCand, TH1F* h1_nCharged, TH1F* h1_nNeutral, TH1F* h1_ptD, TH1F* h1_rmsCand);
 
 
