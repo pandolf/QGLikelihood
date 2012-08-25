@@ -49,7 +49,8 @@ float QGLikelihoodCalculator::computeQGLikelihood( float pt, int nCharged, int n
   const int nPtBinsPlusOne(nPtBins_+1);
   //Double_t ptBins[nPtBinsPlusOne];
   Double_t* ptBins = new Double_t[nPtBinsPlusOne];
-  getBins_int( nPtBinsPlusOne, ptBins, 15., 1000. );
+  getBins_int( nPtBins_, ptBins, 20., 1000. );
+  ptBins[nPtBins_] = 3500.;
 
 
   if( pt>ptBins[nPtBins_] ) {
@@ -73,6 +74,7 @@ float QGLikelihoodCalculator::computeQGLikelihood( float pt, int nCharged, int n
   TH1F* h1_nCharged_gluon = (TH1F*)histoFile_->Get(histoName);
   sprintf( histoName, "nCharged_quark_pt%.0f_%.0f", ptMin, ptMax);
   TH1F* h1_nCharged_quark = (TH1F*)histoFile_->Get(histoName);
+
 
   sprintf( histoName, "nNeutral_gluon_pt%.0f_%.0f", ptMin, ptMax);
   TH1F* h1_nNeutral_gluon = (nNeutral>0) ? (TH1F*)histoFile_->Get(histoName) : 0;
@@ -122,7 +124,8 @@ float QGLikelihoodCalculator::computeQGLikelihoodPU( float pt, float rhoPF, int 
 
   const int nPtBinsPlusOne(nPtBins_+1);
   Double_t* ptBins = new Double_t[nPtBinsPlusOne];
-  getBins_int( nPtBinsPlusOne, ptBins, 15., 1000. );
+  getBins_int( nPtBins_, ptBins, 20., 1000. );
+  ptBins[nPtBins_] = 3500.;
 
 
   if( pt>=ptBins[nPtBins_] ) {
@@ -147,7 +150,7 @@ float QGLikelihoodCalculator::computeQGLikelihoodPU( float pt, float rhoPF, int 
 
   const int nRhoBinsPlusOne(nRhoBins_+1);
   Double_t* rhoBins = new Double_t[nRhoBinsPlusOne];
-  getBins( nRhoBinsPlusOne, rhoBins, 0., 17., false );
+  getBins( nRhoBinsPlusOne, rhoBins, 0., (float)nRhoBins_, false );
 
   int rhoBin=-1;
 
