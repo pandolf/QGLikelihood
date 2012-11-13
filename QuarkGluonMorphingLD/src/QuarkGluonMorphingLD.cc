@@ -98,7 +98,7 @@ double G=1;
 
 double *par=new double[5];
 double *x=new double[5];
-double a,b;
+//double a,b;
 for(unsigned int i=0;i<varName.size();++i){
 	//printf("DEBUG %s\n",varName[i].c_str());
 	//printf("DEBUG %s\n",varFunc[i].c_str());
@@ -256,6 +256,7 @@ int QuarkGluonMorphingLD::ReadBinTxt(const char*fileName,int parameter,TH2F*quar
 			gluon->SetBinContent(gluon->FindBin((ptmin+ptmax)/2.,(rhomin+rhomax)/2.), par[parameter] );
 		}//end of while: loop on the lines
 		fclose(fr);
+	return 0;
 }
 
 int QuarkGluonMorphingLD::ReadParTxt( const char *fileName,std::map< pair<int,int>, double*> *parq,std::map< pair<int,int>, double*> *parg ,int NPar )

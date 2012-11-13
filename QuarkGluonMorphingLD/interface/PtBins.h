@@ -12,18 +12,29 @@ using namespace std;
 #ifndef PTBINS_H
 #define PTBINS_H
 
+namespace Bins {
 
-class Bins{
-public:
-const static int nRhoBins=25; //18
-const static int nPtBins=20; //20
-const static double Pt0=20;  //20
-const static double Pt1=1000; //1000
-const static double Rho0=0;  //2
-const static double Rho1=25; //20
-const static double PtLastExtend=1000; //3500
+const int nRhoBins=25; //18
+const int nPtBins=20; //20
+const double Pt0=20;  //20
+const double Pt1=1000; //1000
+const double Rho0=0;  //2
+const double Rho1=25; //20
+const double PtLastExtend=1000; //3500
 
-};
+}
+
+//class Bins{
+//public:
+//const static int nRhoBins=25; //18
+//const static int nPtBins=20; //20
+//const static double Pt0=20;  //20
+//const static double Pt1=1000; //1000
+//const static double Rho0=0;  //2
+//const static double Rho1=25; //20
+//const static double PtLastExtend=1000; //3500
+//
+//};
 //TO BE INCLUDED IN THE CLASS
 int getBins(double  *Bins,int nBins,double MinBin=15.0,double MaxBin=1000.,bool log=false);
 int getBin(int nBins,double  *Bins,double value,double*x0=0,double*x1=0);

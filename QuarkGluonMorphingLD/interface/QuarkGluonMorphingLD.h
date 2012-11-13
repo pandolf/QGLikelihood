@@ -18,7 +18,12 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include "TF1.h"
 
+#ifndef QGM_LD_H
+#define QGM_LD_H
+
+#define MAX_STR_LENGTH 1023
 
 class QuarkGluonMorphingLD {
 
@@ -61,4 +66,4 @@ class QuarkGluonMorphingLD {
   double functionPtD_(double * x ,double*par);
 
 };
-
+#endif
