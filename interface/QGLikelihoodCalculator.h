@@ -27,6 +27,8 @@ class QGLikelihoodCalculator {
 
   float computeQGLikelihood( float pt, int nCharged, int nNeutral, float ptD, float rmsCand=-1. );
   float computeQGLikelihoodPU( float pt, float rhoPF, int nCharged, int nNeutral, float ptD, float rmsCand=-1. );
+  float computeQGLikelihood2012( float pt, float rho, int nPFCandidates_QC, float ptD_QC, float axis2_QC ); //new
+  float computeQGLikelihood2012( float pt, float rho, float *vars ); //new
 
   float likelihoodProduct( float nCharged, float nNeutral, float ptD, float rmsCand, TH1F* h1_nCharged, TH1F* h1_nNeutral, TH1F* h1_ptD, TH1F* h1_rmsCand);
 
@@ -38,6 +40,10 @@ class QGLikelihoodCalculator {
   std::map<std::string,TH1F*> plots_;
   unsigned int nPtBins_;
   unsigned int nRhoBins_;
+
+  int nVars;
+  std::vector<std::string> varName;
+  std::vector<std::string> varFunc;
 
 };
 

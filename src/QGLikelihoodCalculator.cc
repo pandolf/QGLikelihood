@@ -227,6 +227,86 @@ float QGLikelihoodCalculator::computeQGLikelihoodPU( float pt, float rhoPF, int 
 }
 
 
+
+//new
+float QGLikelihoodCalculator::computeQGLikelihoodPU( float pt, float rho, int nPFCandidates_QC_ptCut, float ptD_QC, float axis2_QC ) {
+
+std::vector<std::string> varName;
+varName.push_back("nPFCand_QC_ptCutJet0");
+varName.push_back("ptD_QCJet0");
+varName.push_back("axis2_QCJet0");
+
+std::vector<float> vars;
+vars.push_back(nPFCandidates_QC_ptCut);
+vars.push_back(ptD_QC);
+vars.push_back(axis2_QC);
+
+
+
+	#ifdef DEBUG
+	fprintf(stderr,"computeQG\n");
+	#endif
+double RhoBins[100];
+double PtBins[100];
+
+	#ifdef DEBUG
+	fprintf(stderr,"computeBins\n");
+	#endif
+getBins_int(Bins::nPtBins+1,PtBins,Bins::Pt0,Bins::Pt1,true);
+PtBins[Bins::nPtBins+1]=Bins::PtLastExtend;
+getBins_int(Bins::nRhoBins+1,RhoBins,Bins::Rho0,Bins::Rho1,false);
+
+
+double ptMin=0.;
+double ptMax=0;
+double rhoMin=0.;
+double rhoMax=0;
+
+if(getBin(Bins::nPtBins,PtBins,pt,&ptMin,&ptMax) <0 ) return -1;
+if(getBin(Bins::nRhoBins,RhoBins,rho,&rhoMin,&rhoMax) <0 ) return -1;
+//get Histo
+
+float Q=1;
+float G=1;
+char histoName[1023];
+ptMin=ceil(ptMin);
+ptMax=ceil(ptMax);
+rhoMin=floor(rhoMin);
+rhoMax=floor(rhoMax);
+	#ifdef DEBUG
+	fprintf(stderr,"Start LOOP %.0f %.0f %.0f %.0f\n",ptMin,ptMax,rhoMin,rhoMax);
+	#endif
+
+for(int i=0;i<vars.size();i++){
+//get Histo
+	#ifdef DEBUG
+	fprintf(stderr,"var %d = %s\n",i,varName[i].c_str());
+	#endif
+  	sprintf( histoName, "rhoBins_pt%.0lf_%.0lf/%s_quark_pt%.0lf_%.0lf_rho%.0lf", ptMin, ptMax,varName[i].c_str(), ptMin, ptMax, rhoMin);
+	if( plots_[histoName] == NULL ){plots_[histoName]=(TH1F*)histoFile_->Get(histoName); }
+	if( plots_[histoName] == NULL ) fprintf(stderr,"Histo %s does not exists\n",histoName); //DEBUG
+	plots_[ histoName]->Scale(1./plots_[histoName]->Integral("width")); 
+
+	Q*=plots_[histoName]->GetBinContent(plots_[histoName]->FindBin(vars[i]));
+	
+  	sprintf( histoName, "rhoBins_pt%.0lf_%.0lf/%s_gluon_pt%.0lf_%.0lf_rho%.0lf", ptMin, ptMax,varName[i].c_str(), ptMin, ptMax, rhoMin);
+	if( plots_[histoName] == NULL ){plots_[histoName]=(TH1F*)histoFile_->Get(histoName);}
+	if( plots_[histoName] == NULL ) fprintf(stderr,"Histo %s does not exists\n",histoName); //DEBUG
+	plots_[ histoName]->Scale(1./plots_[histoName]->Integral("width")); 
+	G*=plots_[histoName]->GetBinContent(plots_[histoName]->FindBin(vars[i]));
+	}
+
+if(Q==0) return 0;
+return Q/(Q+G);
+
+}
+
+
+
+
+
+
+
 float QGLikelihoodCalculator::likelihoodProduct( float nCharged, float nNeutral, float ptD, float rmsCand, TH1F* h1_nCharged, TH1F* h1_nNeutral, TH1F* h1_ptD, TH1F* h1_rmsCand) {
 
   h1_nCharged->Scale(1./h1_nCharged->Integral("width"));
