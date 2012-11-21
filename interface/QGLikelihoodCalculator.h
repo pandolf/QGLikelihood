@@ -41,10 +41,6 @@ class QGLikelihoodCalculator {
   unsigned int nPtBins_;
   unsigned int nRhoBins_;
 
-  int nVars;
-  std::vector<std::string> varName;
-  std::vector<std::string> varFunc;
-
 };
 
 

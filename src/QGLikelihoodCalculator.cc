@@ -1,4 +1,5 @@
 #include "../interface/QGLikelihoodCalculator.h"
+#include "../interface/Bins.h"
 
 #include <iostream>
 #include <fstream>
@@ -229,7 +230,7 @@ float QGLikelihoodCalculator::computeQGLikelihoodPU( float pt, float rhoPF, int 
 
 
 //new
-float QGLikelihoodCalculator::computeQGLikelihoodPU( float pt, float rho, int nPFCandidates_QC_ptCut, float ptD_QC, float axis2_QC ) {
+float QGLikelihoodCalculator::computeQGLikelihood2012( float pt, float rho, int nPFCandidates_QC_ptCut, float ptD_QC, float axis2_QC ) {
 
 std::vector<std::string> varName;
 varName.push_back("nPFCand_QC_ptCutJet0");
@@ -262,8 +263,8 @@ double ptMax=0;
 double rhoMin=0.;
 double rhoMax=0;
 
-if(getBin(Bins::nPtBins,PtBins,pt,&ptMin,&ptMax) <0 ) return -1;
-if(getBin(Bins::nRhoBins,RhoBins,rho,&rhoMin,&rhoMax) <0 ) return -1;
+if(Bins::getBin(Bins::nPtBins,PtBins,pt,&ptMin,&ptMax) <0 ) return -1;
+if(Bins::getBin(Bins::nRhoBins,RhoBins,rho,&rhoMin,&rhoMax) <0 ) return -1;
 //get Histo
 
 float Q=1;
@@ -277,19 +278,19 @@ rhoMax=floor(rhoMax);
 	fprintf(stderr,"Start LOOP %.0f %.0f %.0f %.0f\n",ptMin,ptMax,rhoMin,rhoMax);
 	#endif
 
-for(int i=0;i<vars.size();i++){
+for(unsigned int i=0;i<vars.size();i++){
 //get Histo
 	#ifdef DEBUG
 	fprintf(stderr,"var %d = %s\n",i,varName[i].c_str());
 	#endif
-  	sprintf( histoName, "rhoBins_pt%.0lf_%.0lf/%s_quark_pt%.0lf_%.0lf_rho%.0lf", ptMin, ptMax,varName[i].c_str(), ptMin, ptMax, rhoMin);
+  	sprintf( histoName, "rhoBins_pt%.0f_%.0f/%s_quark_pt%.0f_%.0f_rho%.0f", ptMin, ptMax,varName[i].c_str(), ptMin, ptMax, rhoMin);
 	if( plots_[histoName] == NULL ){plots_[histoName]=(TH1F*)histoFile_->Get(histoName); }
 	if( plots_[histoName] == NULL ) fprintf(stderr,"Histo %s does not exists\n",histoName); //DEBUG
 	plots_[ histoName]->Scale(1./plots_[histoName]->Integral("width")); 
 
 	Q*=plots_[histoName]->GetBinContent(plots_[histoName]->FindBin(vars[i]));
 	
-  	sprintf( histoName, "rhoBins_pt%.0lf_%.0lf/%s_gluon_pt%.0lf_%.0lf_rho%.0lf", ptMin, ptMax,varName[i].c_str(), ptMin, ptMax, rhoMin);
+  	sprintf( histoName, "rhoBins_pt%.0f_%.0f/%s_gluon_pt%.0f_%.0f_rho%.0f", ptMin, ptMax,varName[i].c_str(), ptMin, ptMax, rhoMin);
 	if( plots_[histoName] == NULL ){plots_[histoName]=(TH1F*)histoFile_->Get(histoName);}
 	if( plots_[histoName] == NULL ) fprintf(stderr,"Histo %s does not exists\n",histoName); //DEBUG
 	plots_[ histoName]->Scale(1./plots_[histoName]->Integral("width")); 
