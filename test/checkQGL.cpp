@@ -54,6 +54,9 @@ int main() {
 
 void drawSinglePtBin( DrawBase* db, QGLikelihoodCalculator* qglc, TTree* tree, float ptMin, float ptMax ) {
 
+  bool doFwd = (ptMin<100.);
+
+
   float pt;
   tree->SetBranchAddress("ptJet0", &pt);
   float eta;
@@ -126,8 +129,8 @@ void drawSinglePtBin( DrawBase* db, QGLikelihoodCalculator* qglc, TTree* tree, f
     
     if( h1_qgl_old_gluon->GetEntries()>10000 
      && h1_qgl_old_quark->GetEntries()>10000 
-     && h1_qgl_new_F_quark->GetEntries()>10000
-     && h1_qgl_new_F_gluon->GetEntries()>10000 ) break;
+     && ( !doFwd || (h1_qgl_new_F_quark->GetEntries()>10000
+     && h1_qgl_new_F_gluon->GetEntries()>10000) ) ) break;
 
   }
 
@@ -137,7 +140,8 @@ void drawSinglePtBin( DrawBase* db, QGLikelihoodCalculator* qglc, TTree* tree, f
 
   drawPlot( db, h1_qgl_new_F_gluon, h1_qgl_new_F_quark, "new_F", ptMin, ptMax );
 
-  drawRoC(db, h1_qgl_old_gluon, h1_qgl_old_quark, h1_qgl_new_gluon, h1_qgl_new_quark, ptMin, ptMax);
+  drawRoC(db, h1_qgl_old_gluon, h1_qgl_old_quark, h1_qgl_new_gluon, h1_qgl_new_quark, ptMin, ptMax, "|#eta| < 2.5");
+  drawRoC(db, 0, 0, h1_qgl_new_F_gluon, h1_qgl_new_F_quark, ptMin, ptMax, "2.5 < |#eta| < 5");
 
   delete h1_qgl_old_gluon;
   delete h1_qgl_old_quark;
@@ -231,27 +235,34 @@ void drawRoC( DrawBase* db, TH1D* h1_old_gluon, TH1D* h1_old_quark, TH1D* h1_new
 
   for( unsigned int ibin=1; ibin<nbins+1; ++ibin ) {
 
-    float eff_q_old = h1_old_quark->Integral( nbins-ibin, nbins )/h1_old_quark->Integral( 1, nbins );
-    float eff_g_old = h1_old_gluon->Integral( nbins-ibin, nbins )/h1_old_gluon->Integral( 1, nbins );
+    float eff_q_old = -1.;
+    float eff_g_old = -1.;
+  
+    if( h1_old_quark!=0 && h1_old_gluon!=0 ) {
+      eff_q_old = h1_old_quark->Integral( nbins-ibin, nbins )/h1_old_quark->Integral( 1, nbins );
+      eff_g_old = h1_old_gluon->Integral( nbins-ibin, nbins )/h1_old_gluon->Integral( 1, nbins );
+    }
   
     float eff_q_new = h1_new_quark->Integral( nbins-ibin, nbins )/h1_new_quark->Integral( 1, nbins );
     float eff_g_new = h1_new_gluon->Integral( nbins-ibin, nbins )/h1_new_gluon->Integral( 1, nbins );
   
     gr_RoC_new->SetPoint( ibin-1, 1.-eff_g_new, eff_q_new );
-    gr_RoC_old->SetPoint( ibin-1, 1.-eff_g_old, eff_q_old );
+
+    if( h1_old_quark!=0 && h1_old_gluon!=0 ) 
+      gr_RoC_old->SetPoint( ibin-1, 1.-eff_g_old, eff_q_old );
 
   }
 
 
   gr_RoC_new->SetMarkerSize(1.3);
-  gr_RoC_old->SetMarkerSize(1.3);
-
   gr_RoC_new->SetMarkerStyle(24);
-  gr_RoC_old->SetMarkerStyle(20);
-
   gr_RoC_new->SetMarkerColor(kRed+3);
-  gr_RoC_old->SetMarkerColor(kOrange+1);
 
+  if( h1_old_quark!=0 && h1_old_gluon!=0 ) {
+    gr_RoC_old->SetMarkerSize(1.3);
+    gr_RoC_old->SetMarkerStyle(20);
+    gr_RoC_old->SetMarkerColor(kOrange+1);
+  }
 
   TCanvas* c1 = new TCanvas("c1_roc", "", 600, 600);
   c1->cd();
@@ -271,14 +282,16 @@ void drawRoC( DrawBase* db, TH1D* h1_old_gluon, TH1D* h1_old_quark, TH1D* h1_new
   TLegend* legend = new TLegend( 0.2, 0.2, 0.45, 0.45, legendTitle );
   legend->SetFillColor(0);
   legend->SetTextSize(0.04);
-  legend->AddEntry( gr_RoC_old, "Old Discriminant", "P");
+  if( h1_old_quark!=0 && h1_old_gluon!=0 )
+    legend->AddEntry( gr_RoC_old, "Old Discriminant", "P");
   legend->AddEntry( gr_RoC_new, "New Discriminant", "P");
   legend->Draw("same");
 
   TPaveText* label = db->get_labelTop();
   label->Draw("same");
   
-  gr_RoC_old->Draw("p same");
+  if( h1_old_quark!=0 && h1_old_gluon!=0 ) 
+    gr_RoC_old->Draw("p same");
   gr_RoC_new->Draw("p same");
 
   gPad->RedrawAxis();
