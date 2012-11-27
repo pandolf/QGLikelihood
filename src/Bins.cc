@@ -34,7 +34,7 @@ int Bins::getBin(int nBins,double  bins[],double value,double *x0,double *x1)
 int R=0;
 //int nBins=sizeof(Bins)/sizeof(double);//?
 if(value <bins[0])return -1;
-if(value >bins[nBins])return -1;
+if(value >bins[nBins])return nBins-1;
 for(R=0;R<nBins;R++)
 	{
 	if(bins[R]>value)break;	
