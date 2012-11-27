@@ -4,6 +4,10 @@
 #include "DrawBase.h"
 #include "QG/QGLikelihood/interface/QGLikelihoodCalculator.h"
 
+bool Summer12=false;
+std::string plotsdir = (Summer12) ? "plots_Summer12" : "plots";
+
+
 
 void drawSinglePtBin( DrawBase* db, QGLikelihoodCalculator* qglc, TTree* tree, float ptMin, float ptMax );
 void drawPlot( DrawBase* db, TH1D* h1_gluon, TH1D* h1_quark, std::string name, float ptMin, float ptMax );
@@ -16,12 +20,19 @@ int main() {
   DrawBase* db = new DrawBase("checkQG");
 
   //QGLikelihoodCalculator* qglc = new QGLikelihoodCalculator("/afs/cern.ch/user/a/amarini/scratch0/CMSSW_4_2_5/src/UserCode/pandolf/QGDev/Fit/Output/Histos.root");
-  QGLikelihoodCalculator* qglc = new QGLikelihoodCalculator("/afs/cern.ch/work/p/pandolf/CMSSW_5_3_6/src/QG/QGLikelihood/test/Histos.root");
+  QGLikelihoodCalculator* qglc;
+  if( Summer12 ) qglc = new QGLikelihoodCalculator("/afs/cern.ch/work/p/pandolf/CMSSW_5_3_6/src/QG/QGLikelihood/test/Histos_2012.root");
+  else           qglc = new QGLikelihoodCalculator("/afs/cern.ch/work/p/pandolf/CMSSW_5_3_6/src/QG/QGLikelihood/test/Histos.root");
 
-  TFile* file = TFile::Open("/afs/cern.ch/work/a/amarini/2ndLevel/QG/QG/QG_QCD_Pt-15to3000_TuneZ2_Flat_7TeV_pythia6_Fall11-PU_S6_START42_V14B-v1_TREE.root");
+  TFile* file;
+  if( Summer12 ) file = TFile::Open("/afs/cern.ch/work/a/amarini/2ndLevel/QG/QG/QG_QCD_Pt-15to3000_TuneZ2_Flat_8TeV_pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1_TREE.root");
+  else           file = TFile::Open("/afs/cern.ch/work/a/amarini/2ndLevel/QG/QG/QG_QCD_Pt-15to3000_TuneZ2_Flat_7TeV_pythia6_Fall11-PU_S6_START42_V14B-v1_TREE.root");
+
+
   TTree* tree = (TTree*)file->Get("tree_passedEvents");
 
-  system("mkdir -p plots");
+  std::string mkdircommand = "mkdir -p " + plotsdir;
+  system(mkdircommand.c_str());
 
   drawSinglePtBin( db, qglc, tree, 20., 25. );
   drawSinglePtBin( db, qglc, tree, 25., 30. );
@@ -73,35 +84,58 @@ void drawSinglePtBin( DrawBase* db, QGLikelihoodCalculator* qglc, TTree* tree, f
   TH1D* h1_qgl_new_gluon = new TH1D("qgl_new_gluon", "", 100, 0., 1.0001);
   TH1D* h1_qgl_new_quark = new TH1D("qgl_new_quark", "", 100, 0., 1.0001);
 
+
+  // qgl in the forward:
+  TH1D* h1_qgl_new_F_gluon = new TH1D("qgl_new_F_gluon", "", 100, 0., 1.0001);
+  TH1D* h1_qgl_new_F_quark = new TH1D("qgl_new_F_quark", "", 100, 0., 1.0001);
+
   int nentries = tree->GetEntries();
 
   for( unsigned int ientry=0; ientry<nentries; ++ientry ) {
 
     tree->GetEntry(ientry);
 
-    if( fabs(eta)>2. ) continue;
     if( pt<ptMin || pt>ptMax ) continue;
-    if( rho>22. ) continue;
+    //if( rho>22. ) continue;
 
-    float qgl_old = qglc->computeQGLikelihoodPU( pt, rho, nCharged, nNeutral, ptD);
-    float qgl_new = qglc->computeQGLikelihood2012( pt, rho, nCharged_QC+nNeutral_ptCut, ptD_QC, axis2_QC);
+    float qgl_new = qglc->computeQGLikelihood2012( pt, eta, rho, nCharged_QC+nNeutral_ptCut, ptD_QC, axis2_QC);
 
-    if( fabs(pdgId)<5 ) {
-      h1_qgl_old_quark->Fill( qgl_old );
-      h1_qgl_new_quark->Fill( qgl_new );
-    }
-    if( pdgId==21 ) {
-      h1_qgl_old_gluon->Fill( qgl_old );
-      h1_qgl_new_gluon->Fill( qgl_new );
+    if( fabs(eta)<2.5 && h1_qgl_old_gluon->GetEntries()<10000 && h1_qgl_old_quark->GetEntries()<10000 ) { //save time
+
+      float qgl_old = qglc->computeQGLikelihoodPU( pt, rho, nCharged, nNeutral, ptD);
+
+      if( fabs(pdgId)<5 ) {
+        h1_qgl_old_quark->Fill( qgl_old );
+        h1_qgl_new_quark->Fill( qgl_new );
+      }
+      if( pdgId==21 ) {
+        h1_qgl_old_gluon->Fill( qgl_old );
+        h1_qgl_new_gluon->Fill( qgl_new );
+      }
+
+    } else if( fabs(eta)>2.5 ) {
+
+      if( fabs(pdgId)<5 ) {
+        h1_qgl_new_F_quark->Fill( qgl_new );
+      }
+      if( pdgId==21 ) {
+        h1_qgl_new_F_gluon->Fill( qgl_new );
+      }
+
     }
     
-    if( h1_qgl_old_gluon->GetEntries()>10000 && h1_qgl_old_quark->GetEntries()>10000 ) break;
+    if( h1_qgl_old_gluon->GetEntries()>10000 
+     && h1_qgl_old_quark->GetEntries()>10000 
+     && h1_qgl_new_F_quark->GetEntries()>10000
+     && h1_qgl_new_F_gluon->GetEntries()>10000 ) break;
 
   }
 
 
   drawPlot( db, h1_qgl_old_gluon, h1_qgl_old_quark, "old", ptMin, ptMax );
   drawPlot( db, h1_qgl_new_gluon, h1_qgl_new_quark, "new", ptMin, ptMax );
+
+  drawPlot( db, h1_qgl_new_F_gluon, h1_qgl_new_F_quark, "new_F", ptMin, ptMax );
 
   drawRoC(db, h1_qgl_old_gluon, h1_qgl_old_quark, h1_qgl_new_gluon, h1_qgl_new_quark, ptMin, ptMax);
 
@@ -110,6 +144,9 @@ void drawSinglePtBin( DrawBase* db, QGLikelihoodCalculator* qglc, TTree* tree, f
 
   delete h1_qgl_new_gluon;
   delete h1_qgl_new_quark;
+
+  delete h1_qgl_new_F_gluon;
+  delete h1_qgl_new_F_quark;
 
 }
 
@@ -169,10 +206,12 @@ void drawPlot( DrawBase* db, TH1D* h1_gluon, TH1D* h1_quark, std::string name, f
   TPaveText* label = db->get_labelTop();
   label->Draw("same");
 
+  gPad->RedrawAxis();
+
   char canvasName[500];
-  sprintf( canvasName, "plots/qgl_%s_pt%.0f_%.0f.eps", name.c_str(), ptMin, ptMax);
+  sprintf( canvasName, "%s/qgl_%s_pt%.0f_%.0f.eps", plotsdir.c_str(), name.c_str(), ptMin, ptMax);
   c1->SaveAs(canvasName);
-  sprintf( canvasName, "plots/qgl_%s_pt%.0f_%.0f.png", name.c_str(), ptMin, ptMax);
+  sprintf( canvasName, "%s/qgl_%s_pt%.0f_%.0f.png", plotsdir.c_str(), name.c_str(), ptMin, ptMax);
   c1->SaveAs(canvasName);
 
   delete c1;
@@ -245,9 +284,9 @@ void drawRoC( DrawBase* db, TH1D* h1_old_gluon, TH1D* h1_old_quark, TH1D* h1_new
   gPad->RedrawAxis();
 
   char canvasName[500];
-  sprintf( canvasName, "plots/RoC_pt%.0f_%.0f.eps", ptMin, ptMax);
+  sprintf( canvasName, "%s/RoC_pt%.0f_%.0f.eps", plotsdir.c_str(), ptMin, ptMax);
   c1->SaveAs(canvasName);
-  sprintf( canvasName, "plots/RoC_pt%.0f_%.0f.png", ptMin, ptMax);
+  sprintf( canvasName, "%s/RoC_pt%.0f_%.0f.png", plotsdir.c_str(), ptMin, ptMax);
   c1->SaveAs(canvasName);
 
   delete c1;
