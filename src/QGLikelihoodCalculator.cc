@@ -10,6 +10,8 @@
 #include <map>
 using namespace std;
 
+//#define DEBUG
+
 
 
 void getBins_int( int nBins_total, Double_t* Lower, Double_t xmin, Double_t xmax, bool plotLog=true);
@@ -169,39 +171,39 @@ float QGLikelihoodCalculator::computeQGLikelihoodPU( float pt, float rhoPF, int 
 
 
   char histoName[300];
-  sprintf( histoName, "rhoBins_pt%.0f_%.0f/nCharged_gluon_pt%.0f_%.0f_rho%d", ptMin, ptMax, ptMin, ptMax, rhoBin);
+  sprintf( histoName, "rhoBins_pt%.0f_%.0f/nChargedJet0_gluon_pt%.0f_%.0f_rho%d", ptMin, ptMax, ptMin, ptMax, rhoBin);
 	if(plots_[histoName]==NULL)
 		plots_[histoName]=(TH1F*)histoFile_->Get(histoName)->Clone();
   	TH1F* h1_nCharged_gluon = plots_[histoName];
-  sprintf( histoName, "rhoBins_pt%.0f_%.0f/nCharged_quark_pt%.0f_%.0f_rho%d", ptMin, ptMax, ptMin, ptMax, rhoBin);
+  sprintf( histoName, "rhoBins_pt%.0f_%.0f/nChargedJet0_quark_pt%.0f_%.0f_rho%d", ptMin, ptMax, ptMin, ptMax, rhoBin);
 	if(plots_[histoName]==NULL)
 		plots_[histoName]=(TH1F*)histoFile_->Get(histoName)->Clone();
   	TH1F* h1_nCharged_quark = plots_[histoName];
 
-  sprintf( histoName, "rhoBins_pt%.0f_%.0f/nNeutral_gluon_pt%.0f_%.0f_rho%d", ptMin, ptMax, ptMin, ptMax, rhoBin);
+  sprintf( histoName, "rhoBins_pt%.0f_%.0f/nNeutralJet0_gluon_pt%.0f_%.0f_rho%d", ptMin, ptMax, ptMin, ptMax, rhoBin);
 	if(plots_[histoName]==NULL)
 		plots_[histoName]=(TH1F*)histoFile_->Get(histoName)->Clone();
   	TH1F* h1_nNeutral_gluon = plots_[histoName];
 
-  sprintf( histoName, "rhoBins_pt%.0f_%.0f/nNeutral_quark_pt%.0f_%.0f_rho%d", ptMin, ptMax, ptMin, ptMax, rhoBin);
+  sprintf( histoName, "rhoBins_pt%.0f_%.0f/nNeutralJet0_quark_pt%.0f_%.0f_rho%d", ptMin, ptMax, ptMin, ptMax, rhoBin);
 	if(plots_[histoName]==NULL)
 		plots_[histoName]=(TH1F*)histoFile_->Get(histoName)->Clone();
   	TH1F* h1_nNeutral_quark = plots_[histoName];
 
-  sprintf( histoName, "rhoBins_pt%.0f_%.0f/ptD_gluon_pt%.0f_%.0f_rho%d", ptMin, ptMax, ptMin, ptMax, rhoBin);
+  sprintf( histoName, "rhoBins_pt%.0f_%.0f/ptDJet0_gluon_pt%.0f_%.0f_rho%d", ptMin, ptMax, ptMin, ptMax, rhoBin);
 	if(plots_[histoName]==NULL && ptD>=0.)
 		plots_[histoName]=(TH1F*)histoFile_->Get(histoName)->Clone();
   	TH1F* h1_ptD_gluon = (ptD>=0.) ? plots_[histoName] : 0;
-  sprintf( histoName, "rhoBins_pt%.0f_%.0f/ptD_quark_pt%.0f_%.0f_rho%d", ptMin, ptMax, ptMin, ptMax, rhoBin);
+  sprintf( histoName, "rhoBins_pt%.0f_%.0f/ptDJet0_quark_pt%.0f_%.0f_rho%d", ptMin, ptMax, ptMin, ptMax, rhoBin);
 	if(plots_[histoName]==NULL && ptD>=0.)
 	plots_[histoName]=(TH1F*)histoFile_->Get(histoName)->Clone();
   	TH1F* h1_ptD_quark = (ptD>=0.) ? plots_[histoName] : 0;
 
-  sprintf( histoName, "rhoBins_pt%.0f_%.0f/rmsCand_gluon_pt%.0f_%.0f_rho%d", ptMin, ptMax, ptMin, ptMax, rhoBin);
+  sprintf( histoName, "rhoBins_pt%.0f_%.0f/rmsCandJet0_gluon_pt%.0f_%.0f_rho%d", ptMin, ptMax, ptMin, ptMax, rhoBin);
 	if(plots_[histoName]==NULL && rmsCand>=0.)
 	plots_[histoName]=(TH1F*)histoFile_->Get(histoName)->Clone();
   	TH1F* h1_rmsCand_gluon = (rmsCand>=0.) ? plots_[histoName] : 0;
-  sprintf( histoName, "rhoBins_pt%.0f_%.0f/rmsCand_quark_pt%.0f_%.0f_rho%d", ptMin, ptMax, ptMin, ptMax, rhoBin);
+  sprintf( histoName, "rhoBins_pt%.0f_%.0f/rmsCandJet0_quark_pt%.0f_%.0f_rho%d", ptMin, ptMax, ptMin, ptMax, rhoBin);
 	if(plots_[histoName]==NULL && rmsCand>=0.)
 	plots_[histoName]=(TH1F*)histoFile_->Get(histoName)->Clone();
   	TH1F* h1_rmsCand_quark = (rmsCand>=0.) ? plots_[histoName]: 0;
@@ -230,17 +232,25 @@ float QGLikelihoodCalculator::computeQGLikelihoodPU( float pt, float rhoPF, int 
 
 
 //new
-float QGLikelihoodCalculator::computeQGLikelihood2012( float pt, float rho, int nPFCandidates_QC_ptCut, float ptD_QC, float axis2_QC ) {
+float QGLikelihoodCalculator::computeQGLikelihood2012( float pt, float eta, float rho, int nPFCandidates_QC_ptCut, float ptD_QC, float axis2_QC ) {
 
 std::vector<std::string> varName;
-varName.push_back("nPFCand_QC_ptCutJet0");
-varName.push_back("ptD_QCJet0");
-varName.push_back("axis2_QCJet0");
+//varName.push_back("nPFCand_QCJet0");
+if( fabs(eta)<2.5 ) {
+  varName.push_back("nPFCand_QC_ptCutJet0");
+  varName.push_back("ptD_QCJet0");
+  varName.push_back("axis2_QCJet0");
+} else {
+  varName.push_back("nPFCand_QC_ptCutJet0_F");
+  varName.push_back("ptD_QCJet0_F");
+  varName.push_back("axis2_QCJet0_F");
+}
+
 
 std::vector<float> vars;
 vars.push_back(nPFCandidates_QC_ptCut);
 vars.push_back(ptD_QC);
-vars.push_back(axis2_QC);
+vars.push_back(-log(axis2_QC)); //-log
 
 
 
@@ -281,7 +291,7 @@ rhoMax=floor(rhoMax);
 for(unsigned int i=0;i<vars.size();i++){
 //get Histo
 	#ifdef DEBUG
-	fprintf(stderr,"var %d = %s\n",i,varName[i].c_str());
+	fprintf(stderr,"var %d = %s, value = %f\n",i,varName[i].c_str(), vars[i]);
 	#endif
   	sprintf( histoName, "rhoBins_pt%.0f_%.0f/%s_quark_pt%.0f_%.0f_rho%.0f", ptMin, ptMax,varName[i].c_str(), ptMin, ptMax, rhoMin);
 	if( plots_[histoName] == NULL ){plots_[histoName]=(TH1F*)histoFile_->Get(histoName); }
@@ -289,12 +299,18 @@ for(unsigned int i=0;i<vars.size();i++){
 	plots_[ histoName]->Scale(1./plots_[histoName]->Integral("width")); 
 
 	Q*=plots_[histoName]->GetBinContent(plots_[histoName]->FindBin(vars[i]));
+	#ifdef DEBUG
+	fprintf(stderr,"Q: %f\n",Q);
+	#endif
 	
   	sprintf( histoName, "rhoBins_pt%.0f_%.0f/%s_gluon_pt%.0f_%.0f_rho%.0f", ptMin, ptMax,varName[i].c_str(), ptMin, ptMax, rhoMin);
 	if( plots_[histoName] == NULL ){plots_[histoName]=(TH1F*)histoFile_->Get(histoName);}
 	if( plots_[histoName] == NULL ) fprintf(stderr,"Histo %s does not exists\n",histoName); //DEBUG
 	plots_[ histoName]->Scale(1./plots_[histoName]->Integral("width")); 
 	G*=plots_[histoName]->GetBinContent(plots_[histoName]->FindBin(vars[i]));
+	#ifdef DEBUG
+	fprintf(stderr,"G: %f\n",G);
+	#endif
 	}
 
 if(Q==0) return 0;
