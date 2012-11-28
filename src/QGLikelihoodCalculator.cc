@@ -10,12 +10,12 @@
 #include <map>
 using namespace std;
 
-//#define DEBUG
+#define DEBUG
 
 
 
-void getBins_int( int nBins_total, Double_t* Lower, Double_t xmin, Double_t xmax, bool plotLog=true);
-void getBins( int nBins_total, Double_t* Lower, Double_t xmin, Double_t xmax, bool plotLog=true);
+//void getBins_int( int nBins_total, Double_t* Lower, Double_t xmin, Double_t xmax, bool plotLog=true);
+//void getBins( int nBins_total, Double_t* Lower, Double_t xmin, Double_t xmax, bool plotLog=true);
 
 
 
@@ -44,130 +44,101 @@ for(it=plots_.begin();it!=plots_.end();it++)
 
 
 
-float QGLikelihoodCalculator::computeQGLikelihood( float pt, int nCharged, int nNeutral, float ptD, float rmsCand ) {
-
-  float ptMin = 0.;
-  float ptMax = 0.;
-
-  const int nPtBinsPlusOne(nPtBins_+1);
-  //Double_t ptBins[nPtBinsPlusOne];
-  Double_t* ptBins = new Double_t[nPtBinsPlusOne];
-  getBins_int( nPtBins_, ptBins, 20., 1000. );
-  ptBins[nPtBins_] = 3500.;
-
-
-  if( pt>ptBins[nPtBins_] ) {
-    ptMin = ptBins[nPtBins_-1];
-    ptMax = ptBins[nPtBins_];
-  } else {
-    for( unsigned int iBin=0; iBin<nPtBins_; ++iBin ) {
-      if( pt>ptBins[iBin] && pt<=ptBins[iBin+1] ) {
-        ptMin = ptBins[iBin];
-        ptMax = ptBins[iBin+1];
-      } //if
-    } //for
-  } //else
-  
-  if( ptMax==0. ) return -1.;
-
-
-
-  char histoName[200];
-  sprintf( histoName, "nCharged_gluon_pt%.0f_%.0f", ptMin, ptMax);
-  TH1F* h1_nCharged_gluon = (TH1F*)histoFile_->Get(histoName);
-  sprintf( histoName, "nCharged_quark_pt%.0f_%.0f", ptMin, ptMax);
-  TH1F* h1_nCharged_quark = (TH1F*)histoFile_->Get(histoName);
-
-
-  sprintf( histoName, "nNeutral_gluon_pt%.0f_%.0f", ptMin, ptMax);
-  TH1F* h1_nNeutral_gluon = (nNeutral>0) ? (TH1F*)histoFile_->Get(histoName) : 0;
-  sprintf( histoName, "nNeutral_quark_pt%.0f_%.0f", ptMin, ptMax);
-  TH1F* h1_nNeutral_quark = (nNeutral>0) ? (TH1F*)histoFile_->Get(histoName) : 0;
-
-  sprintf( histoName, "ptD_gluon_pt%.0f_%.0f", ptMin, ptMax);
-  TH1F* h1_ptD_gluon = (ptD>=0.) ? (TH1F*)histoFile_->Get(histoName) : 0;
-  sprintf( histoName, "ptD_quark_pt%.0f_%.0f", ptMin, ptMax);
-  TH1F* h1_ptD_quark = (ptD>=0.) ? (TH1F*)histoFile_->Get(histoName) : 0;
-
-  sprintf( histoName, "rmsCand_gluon_pt%.0f_%.0f", ptMin, ptMax);
-  TH1F* h1_rmsCand_gluon = (rmsCand>=0.) ? (TH1F*)histoFile_->Get(histoName) : 0;
-  sprintf( histoName, "rmsCand_quark_pt%.0f_%.0f", ptMin, ptMax);
-  TH1F* h1_rmsCand_quark = (rmsCand>=0.) ? (TH1F*)histoFile_->Get(histoName) : 0;
-
-
-  float gluonP = likelihoodProduct( nCharged, nNeutral, ptD, rmsCand, h1_nCharged_gluon, h1_nNeutral_gluon, h1_ptD_gluon, h1_rmsCand_gluon );
-  float quarkP = likelihoodProduct( nCharged, nNeutral, ptD, rmsCand, h1_nCharged_quark, h1_nNeutral_quark, h1_ptD_quark, h1_rmsCand_quark );
-
-  //float QGLikelihood = gluonP / (gluonP + quarkP );
-  float QGLikelihood = quarkP / (gluonP + quarkP );
-
-  delete[] ptBins;
-  if(h1_nCharged_gluon) delete h1_nCharged_gluon;
-  if(h1_nCharged_quark) delete h1_nCharged_quark;
-  if(h1_nNeutral_gluon) delete h1_nNeutral_gluon;
-  if(h1_nNeutral_quark) delete h1_nNeutral_quark;
-  if(h1_ptD_gluon) delete h1_ptD_gluon;
-  if(h1_ptD_quark) delete h1_ptD_quark;
-  if(h1_rmsCand_gluon) delete h1_rmsCand_gluon;
-  if(h1_rmsCand_quark) delete h1_rmsCand_quark;
-
-  return QGLikelihood;
-
-}
+//float QGLikelihoodCalculator::computeQGLikelihood( float pt, int nCharged, int nNeutral, float ptD, float rmsCand ) {
+//
+//  float ptMin = 0.;
+//  float ptMax = 0.;
+//
+//  const int nPtBinsPlusOne(nPtBins_+1);
+//  //Double_t ptBins[nPtBinsPlusOne];
+//  Double_t* ptBins = new Double_t[nPtBinsPlusOne];
+//  getBins_int( nPtBins_, ptBins, 20., 1000. );
+//  ptBins[nPtBins_] = 3500.;
+//
+//
+//  if( pt>ptBins[nPtBins_] ) {
+//    ptMin = ptBins[nPtBins_-1];
+//    ptMax = ptBins[nPtBins_];
+//  } else {
+//    for( unsigned int iBin=0; iBin<nPtBins_; ++iBin ) {
+//      if( pt>ptBins[iBin] && pt<=ptBins[iBin+1] ) {
+//        ptMin = ptBins[iBin];
+//        ptMax = ptBins[iBin+1];
+//      } //if
+//    } //for
+//  } //else
+//  
+//  if( ptMax==0. ) return -1.;
+//
+//
+//
+//  char histoName[200];
+//  sprintf( histoName, "nCharged_gluon_pt%.0f_%.0f", ptMin, ptMax);
+//  TH1F* h1_nCharged_gluon = (TH1F*)histoFile_->Get(histoName);
+//  sprintf( histoName, "nCharged_quark_pt%.0f_%.0f", ptMin, ptMax);
+//  TH1F* h1_nCharged_quark = (TH1F*)histoFile_->Get(histoName);
+//
+//
+//  sprintf( histoName, "nNeutral_gluon_pt%.0f_%.0f", ptMin, ptMax);
+//  TH1F* h1_nNeutral_gluon = (nNeutral>0) ? (TH1F*)histoFile_->Get(histoName) : 0;
+//  sprintf( histoName, "nNeutral_quark_pt%.0f_%.0f", ptMin, ptMax);
+//  TH1F* h1_nNeutral_quark = (nNeutral>0) ? (TH1F*)histoFile_->Get(histoName) : 0;
+//
+//  sprintf( histoName, "ptD_gluon_pt%.0f_%.0f", ptMin, ptMax);
+//  TH1F* h1_ptD_gluon = (ptD>=0.) ? (TH1F*)histoFile_->Get(histoName) : 0;
+//  sprintf( histoName, "ptD_quark_pt%.0f_%.0f", ptMin, ptMax);
+//  TH1F* h1_ptD_quark = (ptD>=0.) ? (TH1F*)histoFile_->Get(histoName) : 0;
+//
+//  sprintf( histoName, "rmsCand_gluon_pt%.0f_%.0f", ptMin, ptMax);
+//  TH1F* h1_rmsCand_gluon = (rmsCand>=0.) ? (TH1F*)histoFile_->Get(histoName) : 0;
+//  sprintf( histoName, "rmsCand_quark_pt%.0f_%.0f", ptMin, ptMax);
+//  TH1F* h1_rmsCand_quark = (rmsCand>=0.) ? (TH1F*)histoFile_->Get(histoName) : 0;
+//
+//
+//  float gluonP = likelihoodProduct( nCharged, nNeutral, ptD, rmsCand, h1_nCharged_gluon, h1_nNeutral_gluon, h1_ptD_gluon, h1_rmsCand_gluon );
+//  float quarkP = likelihoodProduct( nCharged, nNeutral, ptD, rmsCand, h1_nCharged_quark, h1_nNeutral_quark, h1_ptD_quark, h1_rmsCand_quark );
+//
+//  //float QGLikelihood = gluonP / (gluonP + quarkP );
+//  float QGLikelihood = quarkP / (gluonP + quarkP );
+//
+//  delete[] ptBins;
+//  if(h1_nCharged_gluon) delete h1_nCharged_gluon;
+//  if(h1_nCharged_quark) delete h1_nCharged_quark;
+//  if(h1_nNeutral_gluon) delete h1_nNeutral_gluon;
+//  if(h1_nNeutral_quark) delete h1_nNeutral_quark;
+//  if(h1_ptD_gluon) delete h1_ptD_gluon;
+//  if(h1_ptD_quark) delete h1_ptD_quark;
+//  if(h1_rmsCand_gluon) delete h1_rmsCand_gluon;
+//  if(h1_rmsCand_quark) delete h1_rmsCand_quark;
+//
+//  return QGLikelihood;
+//
+//}
 
 
 
 float QGLikelihoodCalculator::computeQGLikelihoodPU( float pt, float rhoPF, int nCharged, int nNeutral, float ptD, float rmsCand ) {
 
 
-  // first look for pt bin:
+  double ptBins[100];
+  Bins::getBins_int( Bins::nPtBins+1, ptBins, Bins::Pt0,Bins::Pt1,true);
+  ptBins[Bins::nPtBins+1]=Bins::PtLastExtend;
 
-  float ptMin = 0.;
-  float ptMax = 0.;
+  double rhoBins[100];
+  Bins::getBins_int(Bins::nRhoBins+1,rhoBins,Bins::Rho0,Bins::Rho1,false);
 
-  const int nPtBinsPlusOne(nPtBins_+1);
-  Double_t* ptBins = new Double_t[nPtBinsPlusOne];
-  getBins_int( nPtBins_, ptBins, 20., 1000. );
-  ptBins[nPtBins_] = 3500.;
-
-
-  if( pt>=ptBins[nPtBins_] ) {
-    ptMin = ptBins[nPtBins_-1];
-    ptMax = ptBins[nPtBins_];
-  } else {
-    for( unsigned int iBin=0; iBin<nPtBins_; ++iBin ) {
-      if( pt>=ptBins[iBin] && pt<ptBins[iBin+1] ) {
-        ptMin = ptBins[iBin];
-        ptMax = ptBins[iBin+1];
-      } //if
-    } //for
-  } //else
+  double ptMin=0.;
+  double ptMax=0;
+  double rhoMin=0.;
+  double rhoMax=0;
   
+  if(Bins::getBin(Bins::nPtBins,ptBins,pt,&ptMin,&ptMax) <0 ) return -1;
+  if(Bins::getBin(Bins::nRhoBins,rhoBins,rhoPF,&rhoMin,&rhoMax) <0 ) return -1;
+
+  int rhoBin = rhoMin;
 
   if( ptMax==0. ) return -1.;
 
-
-
-
-  //then look for rho bin:
-
-  const int nRhoBinsPlusOne(nRhoBins_+1);
-  Double_t* rhoBins = new Double_t[nRhoBinsPlusOne];
-  getBins( nRhoBinsPlusOne, rhoBins, 0., (float)nRhoBins_, false );
-
-  int rhoBin=-1;
-
-  if( rhoPF>=rhoBins[nRhoBins_] ) {
-    rhoBin = nRhoBins_-1;
-  } else {
-    for( unsigned int iBin=0; iBin<nRhoBins_; ++iBin ) {
-      if( rhoPF>=rhoBins[iBin] && rhoPF<rhoBins[iBin+1] ) {
-        rhoBin = iBin;
-      } //if
-    } //for
-  } //else
-  
-  if( rhoBin==-1 ) return -1.;
 
 
   char histoName[300];
@@ -214,8 +185,6 @@ float QGLikelihoodCalculator::computeQGLikelihoodPU( float pt, float rhoPF, int 
 
   float QGLikelihood = quarkP / (gluonP + quarkP );
 
-  delete[] ptBins;
-  delete[] rhoBins;
  // if(h1_nCharged_gluon) delete h1_nCharged_gluon;
  // if(h1_nCharged_quark) delete h1_nCharged_quark;
  // if(h1_nNeutral_gluon) delete h1_nNeutral_gluon;
@@ -263,9 +232,9 @@ double PtBins[100];
 	#ifdef DEBUG
 	fprintf(stderr,"computeBins\n");
 	#endif
-getBins_int(Bins::nPtBins+1,PtBins,Bins::Pt0,Bins::Pt1,true);
+Bins::getBins_int(Bins::nPtBins+1,PtBins,Bins::Pt0,Bins::Pt1,true);
 PtBins[Bins::nPtBins+1]=Bins::PtLastExtend;
-getBins_int(Bins::nRhoBins+1,RhoBins,Bins::Rho0,Bins::Rho1,false);
+Bins::getBins_int(Bins::nRhoBins+1,RhoBins,Bins::Rho0,Bins::Rho1,false);
 
 
 double ptMin=0.;
@@ -294,6 +263,9 @@ for(unsigned int i=0;i<vars.size();i++){
 	fprintf(stderr,"var %d = %s, value = %f\n",i,varName[i].c_str(), vars[i]);
 	#endif
   	sprintf( histoName, "rhoBins_pt%.0f_%.0f/%s_quark_pt%.0f_%.0f_rho%.0f", ptMin, ptMax,varName[i].c_str(), ptMin, ptMax, rhoMin);
+	#ifdef DEBUG
+	fprintf(stderr,"looking for histo: %s\n", histoName );
+	#endif
 	if( plots_[histoName] == NULL ){plots_[histoName]=(TH1F*)histoFile_->Get(histoName); }
 	if( plots_[histoName] == NULL ) fprintf(stderr,"Histo %s does not exists\n",histoName); //DEBUG
 	plots_[ histoName]->Scale(1./plots_[histoName]->Integral("width")); 
@@ -304,6 +276,9 @@ for(unsigned int i=0;i<vars.size();i++){
 	#endif
 	
   	sprintf( histoName, "rhoBins_pt%.0f_%.0f/%s_gluon_pt%.0f_%.0f_rho%.0f", ptMin, ptMax,varName[i].c_str(), ptMin, ptMax, rhoMin);
+	#ifdef DEBUG
+	fprintf(stderr,"looking for histo: %s\n", histoName );
+	#endif
 	if( plots_[histoName] == NULL ){plots_[histoName]=(TH1F*)histoFile_->Get(histoName);}
 	if( plots_[histoName] == NULL ) fprintf(stderr,"Histo %s does not exists\n",histoName); //DEBUG
 	plots_[ histoName]->Scale(1./plots_[histoName]->Integral("width")); 
@@ -349,43 +324,43 @@ float QGLikelihoodCalculator::likelihoodProduct( float nCharged, float nNeutral,
 }
 
 
-void getBins_int( int nBins_total, Double_t* Lower, Double_t xmin, Double_t xmax, bool plotLog) {
-
-  Double_t Lower_exact;
-  int nBins = nBins_total-1;
-  const double dx = (plotLog) ? pow((xmax / xmin), (1. / (double)nBins)) : ((xmax - xmin) / (double)nBins);
-  Lower[0] = xmin;
-  Lower_exact = Lower[0];
-  for (int i = 1; i != nBins; ++i) {
-
-    if (plotLog) {
-      Lower_exact *= dx;
-      Lower[i] = TMath::Ceil(Lower_exact);
-    } else {
-      Lower[i] = TMath::Ceil(Lower[i-1] + dx);
-    }
-
-  }
-
-  Lower[nBins] = xmax;
-
-}
-
-
-
-void getBins( int nBins_total, Double_t* Lower, Double_t xmin, Double_t xmax, bool plotLog) {
-
-  int nBins = nBins_total-1;
-  const double dx = (plotLog) ? pow((xmax / xmin), (1. / (double)nBins)) : ((xmax - xmin) / (double)nBins);
-  Lower[0] = xmin;
-  for (int i = 1; i != nBins; ++i) {
-
-    if (plotLog) Lower[i] = Lower[i-1] * dx;
-    else         Lower[i] = Lower[i-1] + dx;
-
-  }
-
-  Lower[nBins] = xmax;
-
-}
+//void getBins_int( int nBins_total, Double_t* Lower, Double_t xmin, Double_t xmax, bool plotLog) {
+//
+//  Double_t Lower_exact;
+//  int nBins = nBins_total-1;
+//  const double dx = (plotLog) ? pow((xmax / xmin), (1. / (double)nBins)) : ((xmax - xmin) / (double)nBins);
+//  Lower[0] = xmin;
+//  Lower_exact = Lower[0];
+//  for (int i = 1; i != nBins; ++i) {
+//
+//    if (plotLog) {
+//      Lower_exact *= dx;
+//      Lower[i] = TMath::Ceil(Lower_exact);
+//    } else {
+//      Lower[i] = TMath::Ceil(Lower[i-1] + dx);
+//    }
+//
+//  }
+//
+//  Lower[nBins] = xmax;
+//
+//}
+//
+//
+//
+//void getBins( int nBins_total, Double_t* Lower, Double_t xmin, Double_t xmax, bool plotLog) {
+//
+//  int nBins = nBins_total-1;
+//  const double dx = (plotLog) ? pow((xmax / xmin), (1. / (double)nBins)) : ((xmax - xmin) / (double)nBins);
+//  Lower[0] = xmin;
+//  for (int i = 1; i != nBins; ++i) {
+//
+//    if (plotLog) Lower[i] = Lower[i-1] * dx;
+//    else         Lower[i] = Lower[i-1] + dx;
+//
+//  }
+//
+//  Lower[nBins] = xmax;
+//
+//}
 
