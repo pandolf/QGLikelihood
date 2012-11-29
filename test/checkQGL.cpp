@@ -4,14 +4,14 @@
 #include "DrawBase.h"
 #include "QG/QGLikelihood/interface/QGLikelihoodCalculator.h"
 
-bool Summer12=false;
+bool Summer12=true;
 std::string plotsdir = (Summer12) ? "plots_Summer12" : "plots";
 
 
 
 void drawSinglePtBin( DrawBase* db, QGLikelihoodCalculator* qglc, TTree* tree, float ptMin, float ptMax );
 void drawPlot( DrawBase* db, TH1D* h1_gluon, TH1D* h1_quark, std::string name, float ptMin, float ptMax );
-void drawRoC( DrawBase* db, TH1D* h1_old_gluon, TH1D* h1_old_quark, TH1D* h1_new_gluon, TH1D* h1_new_quark, float ptMin, float ptMax);
+void drawRoC( DrawBase* db, float ptMin, float ptMax, const std::string& flag, TH1D* h1_new_gluon, TH1D* h1_new_quark, TH1D* h1_old_gluon, TH1D* h1_old_quark, TH1D* h1_bdt_gluon=0, TH1D* h1_bdt_quark=0);
 
 
 
@@ -25,7 +25,7 @@ int main() {
   else           qglc = new QGLikelihoodCalculator("/afs/cern.ch/work/p/pandolf/CMSSW_5_3_6/src/QG/QGLikelihood/test/Histos.root");
 
   TFile* file;
-  if( Summer12 ) file = TFile::Open("/afs/cern.ch/work/a/amarini/2ndLevel/QG/QG/QG_QCD_Pt-15to3000_TuneZ2_Flat_8TeV_pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1_TREE.root");
+  if( Summer12 ) file = TFile::Open("/afs/cern.ch/work/a/amarini/2ndLevel/QG/QG/QG_QCD_Pt-15to3000_TuneZ2_Flat_8TeV_pythia6_Summer12_DR53X-PU_S10_START53_V7A-v1_2_TREE.root");
   else           file = TFile::Open("/afs/cern.ch/work/a/amarini/2ndLevel/QG/QG/QG_QCD_Pt-15to3000_TuneZ2_Flat_7TeV_pythia6_Fall11-PU_S6_START42_V14B-v1_TREE.root");
 
 
@@ -54,6 +54,8 @@ int main() {
 
 void drawSinglePtBin( DrawBase* db, QGLikelihoodCalculator* qglc, TTree* tree, float ptMin, float ptMax ) {
 
+  std::cout << "-> Processing pt bin: " << ptMin << "-" << ptMax << " GeV..." << std::endl;
+
   bool doFwd = (ptMin<100.);
 
 
@@ -79,6 +81,8 @@ void drawSinglePtBin( DrawBase* db, QGLikelihoodCalculator* qglc, TTree* tree, f
   tree->SetBranchAddress("nChg_QCJet0", &nCharged_QC);
   int nNeutral_ptCut;
   tree->SetBranchAddress("nNeutral_ptCutJet0", &nNeutral_ptCut);
+  float qglPaoloJet0;
+  tree->SetBranchAddress("qglPaoloJet0", &qglPaoloJet0);
 
 
   TH1D* h1_qgl_old_gluon = new TH1D("qgl_old_gluon", "", 100, 0., 1.0001);
@@ -87,10 +91,17 @@ void drawSinglePtBin( DrawBase* db, QGLikelihoodCalculator* qglc, TTree* tree, f
   TH1D* h1_qgl_new_gluon = new TH1D("qgl_new_gluon", "", 100, 0., 1.0001);
   TH1D* h1_qgl_new_quark = new TH1D("qgl_new_quark", "", 100, 0., 1.0001);
 
+  TH1D* h1_qgbdt_gluon = new TH1D("qgbdt_gluon", "", 100, -0.5, 0.5);
+  TH1D* h1_qgbdt_quark = new TH1D("qgbdt_quark", "", 100, -0.5, 0.5);
 
-  // qgl in the forward:
+
+  // in the forward:
   TH1D* h1_qgl_new_F_gluon = new TH1D("qgl_new_F_gluon", "", 100, 0., 1.0001);
   TH1D* h1_qgl_new_F_quark = new TH1D("qgl_new_F_quark", "", 100, 0., 1.0001);
+
+  TH1D* h1_qgbdt_F_gluon = new TH1D("qgbdt_F_gluon", "", 100, -0.5, 0.5);
+  TH1D* h1_qgbdt_F_quark = new TH1D("qgbdt_F_quark", "", 100, -0.5, 0.5);
+
 
   int nentries = tree->GetEntries();
 
@@ -110,19 +121,23 @@ void drawSinglePtBin( DrawBase* db, QGLikelihoodCalculator* qglc, TTree* tree, f
       if( fabs(pdgId)<5 ) {
         h1_qgl_old_quark->Fill( qgl_old );
         h1_qgl_new_quark->Fill( qgl_new );
+        h1_qgbdt_quark->Fill( qglPaoloJet0 );
       }
       if( pdgId==21 ) {
         h1_qgl_old_gluon->Fill( qgl_old );
         h1_qgl_new_gluon->Fill( qgl_new );
+        h1_qgbdt_gluon->Fill( qglPaoloJet0 );
       }
 
     } else if( fabs(eta)>2.5 ) {
 
       if( fabs(pdgId)<5 ) {
         h1_qgl_new_F_quark->Fill( qgl_new );
+        h1_qgbdt_F_quark->Fill( qglPaoloJet0 );
       }
       if( pdgId==21 ) {
         h1_qgl_new_F_gluon->Fill( qgl_new );
+        h1_qgbdt_F_gluon->Fill( qglPaoloJet0 );
       }
 
     }
@@ -137,11 +152,14 @@ void drawSinglePtBin( DrawBase* db, QGLikelihoodCalculator* qglc, TTree* tree, f
 
   drawPlot( db, h1_qgl_old_gluon, h1_qgl_old_quark, "old", ptMin, ptMax );
   drawPlot( db, h1_qgl_new_gluon, h1_qgl_new_quark, "new", ptMin, ptMax );
+  drawPlot( db, h1_qgbdt_gluon, h1_qgbdt_quark, "bdt", ptMin, ptMax );
 
   drawPlot( db, h1_qgl_new_F_gluon, h1_qgl_new_F_quark, "new_F", ptMin, ptMax );
+  drawPlot( db, h1_qgbdt_F_gluon, h1_qgbdt_F_quark, "bdt_F", ptMin, ptMax );
 
-  drawRoC(db, h1_qgl_old_gluon, h1_qgl_old_quark, h1_qgl_new_gluon, h1_qgl_new_quark, ptMin, ptMax, "|#eta| < 2.5");
-  drawRoC(db, 0, 0, h1_qgl_new_F_gluon, h1_qgl_new_F_quark, ptMin, ptMax, "2.5 < |#eta| < 5");
+  drawRoC(db, ptMin, ptMax, "", h1_qgl_new_gluon, h1_qgl_new_quark, h1_qgl_old_gluon, h1_qgl_old_quark, 0, 0);
+  drawRoC(db, ptMin, ptMax, "_withBDT", h1_qgl_new_gluon, h1_qgl_new_quark, h1_qgl_old_gluon, h1_qgl_old_quark, h1_qgbdt_gluon, h1_qgbdt_quark);
+  drawRoC(db, ptMin, ptMax, "_F", h1_qgl_new_gluon, h1_qgl_new_quark, 0, 0, h1_qgbdt_F_gluon, h1_qgbdt_F_quark);
 
   delete h1_qgl_old_gluon;
   delete h1_qgl_old_quark;
@@ -149,8 +167,15 @@ void drawSinglePtBin( DrawBase* db, QGLikelihoodCalculator* qglc, TTree* tree, f
   delete h1_qgl_new_gluon;
   delete h1_qgl_new_quark;
 
+  delete h1_qgbdt_gluon;
+  delete h1_qgbdt_quark;
+
   delete h1_qgl_new_F_gluon;
   delete h1_qgl_new_F_quark;
+
+  delete h1_qgbdt_F_gluon;
+  delete h1_qgbdt_F_quark;
+
 
 }
 
@@ -170,7 +195,7 @@ void drawPlot( DrawBase* db, TH1D* h1_gluon, TH1D* h1_quark, std::string name, f
 
   float ymax = hmax*1.2;
 
-  TH2D* h2_axes = new TH2D("axes", "", 10, 0., 1.0001, 10, 0., ymax);
+  TH2D* h2_axes = new TH2D("axes", "", 10, h1_gluon->GetXaxis()->GetXmin(), h1_gluon->GetXaxis()->GetXmax(), 10, 0., ymax);
   h2_axes->SetXTitle("Quark-Gluon Likelihood Discriminator");
   h2_axes->SetYTitle("Normalized To Unity");
 
@@ -180,12 +205,12 @@ void drawPlot( DrawBase* db, TH1D* h1_gluon, TH1D* h1_quark, std::string name, f
   h1_quark->SetLineColor(38);
   h1_quark->SetLineWidth(2);
   h1_quark->SetFillColor(38);
-  h1_quark->SetFillStyle(3004);
+  h1_quark->SetFillStyle(3005);
 
   h1_gluon->SetLineColor(46);
   h1_gluon->SetLineWidth(2);
   h1_gluon->SetFillColor(46);
-  h1_gluon->SetFillStyle(3005);
+  h1_gluon->SetFillStyle(3004);
 
 
   h2_axes->Draw();
@@ -225,11 +250,12 @@ void drawPlot( DrawBase* db, TH1D* h1_gluon, TH1D* h1_quark, std::string name, f
 }
 
 
-void drawRoC( DrawBase* db, TH1D* h1_old_gluon, TH1D* h1_old_quark, TH1D* h1_new_gluon, TH1D* h1_new_quark, float ptMin, float ptMax) {
+void drawRoC( DrawBase* db, float ptMin, float ptMax, const std::string& flag, TH1D* h1_new_gluon, TH1D* h1_new_quark, TH1D* h1_old_gluon, TH1D* h1_old_quark, TH1D* h1_bdt_gluon, TH1D* h1_bdt_quark) {
 
 
   TGraph* gr_RoC_old = new TGraph(0);
   TGraph* gr_RoC_new = new TGraph(0);
+  TGraph* gr_RoC_bdt = new TGraph(0);
 
   int nbins = h1_new_quark->GetNbinsX();
 
@@ -243,6 +269,14 @@ void drawRoC( DrawBase* db, TH1D* h1_old_gluon, TH1D* h1_old_quark, TH1D* h1_new
       eff_g_old = h1_old_gluon->Integral( nbins-ibin, nbins )/h1_old_gluon->Integral( 1, nbins );
     }
   
+    float eff_q_bdt = -1.;
+    float eff_g_bdt = -1.;
+  
+    if( h1_bdt_quark!=0 && h1_bdt_gluon!=0 ) { //opposite convention:
+      eff_q_bdt = h1_bdt_quark->Integral( 1, ibin )/h1_bdt_quark->Integral( 1, nbins );
+      eff_g_bdt = h1_bdt_gluon->Integral( 1, ibin )/h1_bdt_gluon->Integral( 1, nbins );
+    }
+  
     float eff_q_new = h1_new_quark->Integral( nbins-ibin, nbins )/h1_new_quark->Integral( 1, nbins );
     float eff_g_new = h1_new_gluon->Integral( nbins-ibin, nbins )/h1_new_gluon->Integral( 1, nbins );
   
@@ -250,6 +284,9 @@ void drawRoC( DrawBase* db, TH1D* h1_old_gluon, TH1D* h1_old_quark, TH1D* h1_new
 
     if( h1_old_quark!=0 && h1_old_gluon!=0 ) 
       gr_RoC_old->SetPoint( ibin-1, 1.-eff_g_old, eff_q_old );
+
+    if( h1_bdt_quark!=0 && h1_bdt_gluon!=0 ) 
+      gr_RoC_bdt->SetPoint( ibin-1, 1.-eff_g_bdt, eff_q_bdt );
 
   }
 
@@ -262,6 +299,12 @@ void drawRoC( DrawBase* db, TH1D* h1_old_gluon, TH1D* h1_old_quark, TH1D* h1_new
     gr_RoC_old->SetMarkerSize(1.3);
     gr_RoC_old->SetMarkerStyle(20);
     gr_RoC_old->SetMarkerColor(kOrange+1);
+  }
+
+  if( h1_bdt_quark!=0 && h1_bdt_gluon!=0 ) {
+    gr_RoC_bdt->SetMarkerSize(1.3);
+    gr_RoC_bdt->SetMarkerStyle(21);
+    gr_RoC_bdt->SetMarkerColor(38);
   }
 
   TCanvas* c1 = new TCanvas("c1_roc", "", 600, 600);
@@ -283,13 +326,17 @@ void drawRoC( DrawBase* db, TH1D* h1_old_gluon, TH1D* h1_old_quark, TH1D* h1_new
   legend->SetFillColor(0);
   legend->SetTextSize(0.04);
   if( h1_old_quark!=0 && h1_old_gluon!=0 )
-    legend->AddEntry( gr_RoC_old, "Old Discriminant", "P");
-  legend->AddEntry( gr_RoC_new, "New Discriminant", "P");
+    legend->AddEntry( gr_RoC_old, "Old LD", "P");
+  legend->AddEntry( gr_RoC_new, "New LD", "P");
+  if( h1_bdt_quark!=0 && h1_bdt_gluon!=0 )
+    legend->AddEntry( gr_RoC_bdt, "BDT", "P");
   legend->Draw("same");
 
   TPaveText* label = db->get_labelTop();
   label->Draw("same");
   
+  if( h1_bdt_quark!=0 && h1_bdt_gluon!=0 ) 
+    gr_RoC_bdt->Draw("p same");
   if( h1_old_quark!=0 && h1_old_gluon!=0 ) 
     gr_RoC_old->Draw("p same");
   gr_RoC_new->Draw("p same");
@@ -297,9 +344,9 @@ void drawRoC( DrawBase* db, TH1D* h1_old_gluon, TH1D* h1_old_quark, TH1D* h1_new
   gPad->RedrawAxis();
 
   char canvasName[500];
-  sprintf( canvasName, "%s/RoC_pt%.0f_%.0f.eps", plotsdir.c_str(), ptMin, ptMax);
+  sprintf( canvasName, "%s/RoC_pt%.0f_%.0f%s.eps", plotsdir.c_str(), ptMin, ptMax, flag.c_str());
   c1->SaveAs(canvasName);
-  sprintf( canvasName, "%s/RoC_pt%.0f_%.0f.png", plotsdir.c_str(), ptMin, ptMax);
+  sprintf( canvasName, "%s/RoC_pt%.0f_%.0f%s.png", plotsdir.c_str(), ptMin, ptMax, flag.c_str());
   c1->SaveAs(canvasName);
 
   delete c1;
