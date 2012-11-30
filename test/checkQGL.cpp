@@ -10,14 +10,15 @@ std::string plotsdir = (Summer12) ? "plots_Summer12" : "plots";
 
 
 void drawSinglePtBin( DrawBase* db, QGLikelihoodCalculator* qglc, TTree* tree, float ptMin, float ptMax );
-void drawPlot( DrawBase* db, TH1D* h1_gluon, TH1D* h1_quark, std::string name, float ptMin, float ptMax );
-void drawRoC( DrawBase* db, float ptMin, float ptMax, const std::string& flag, TH1D* h1_new_gluon, TH1D* h1_new_quark, TH1D* h1_old_gluon, TH1D* h1_old_quark, TH1D* h1_bdt_gluon=0, TH1D* h1_bdt_quark=0);
+void drawPlot( DrawBase* db, TH1D* h1_gluon, TH1D* h1_quark, std::string name, float ptMin, float ptMax, const std::string& labelText="" );
+void drawRoC( DrawBase* db, float ptMin, float ptMax, const std::string& flag, TH1D* h1_new_gluon, TH1D* h1_new_quark, TH1D* h1_old_gluon, TH1D* h1_old_quark, TH1D* h1_bdt_gluon=0, TH1D* h1_bdt_quark=0, const std::string& labelText="" );
 
 
 
 int main() {
 
   DrawBase* db = new DrawBase("checkQG");
+  if( !Summer12 ) db->set_is7TeV(true);
 
   //QGLikelihoodCalculator* qglc = new QGLikelihoodCalculator("/afs/cern.ch/user/a/amarini/scratch0/CMSSW_4_2_5/src/UserCode/pandolf/QGDev/Fit/Output/Histos.root");
   QGLikelihoodCalculator* qglc;
@@ -38,6 +39,8 @@ int main() {
   drawSinglePtBin( db, qglc, tree, 25., 30. );
   drawSinglePtBin( db, qglc, tree, 30., 40. );
   drawSinglePtBin( db, qglc, tree, 40., 50. );
+  drawSinglePtBin( db, qglc, tree, 50., 65. );
+  drawSinglePtBin( db, qglc, tree, 65., 80. );
   drawSinglePtBin( db, qglc, tree, 80., 100. );
   drawSinglePtBin( db, qglc, tree, 150., 200. );
   drawSinglePtBin( db, qglc, tree, 200., 250. );
@@ -147,19 +150,20 @@ void drawSinglePtBin( DrawBase* db, QGLikelihoodCalculator* qglc, TTree* tree, f
      && ( !doFwd || (h1_qgl_new_F_quark->GetEntries()>10000
      && h1_qgl_new_F_gluon->GetEntries()>10000) ) ) break;
 
+
   }
 
 
-  drawPlot( db, h1_qgl_old_gluon, h1_qgl_old_quark, "old", ptMin, ptMax );
-  drawPlot( db, h1_qgl_new_gluon, h1_qgl_new_quark, "new", ptMin, ptMax );
-  drawPlot( db, h1_qgbdt_gluon, h1_qgbdt_quark, "bdt", ptMin, ptMax );
+  drawPlot( db, h1_qgl_old_gluon, h1_qgl_old_quark, "old", ptMin, ptMax, "|#eta| < 2.5" );
+  drawPlot( db, h1_qgl_new_gluon, h1_qgl_new_quark, "new", ptMin, ptMax, "|#eta| < 2.5" );
+  drawPlot( db, h1_qgbdt_gluon, h1_qgbdt_quark, "bdt", ptMin, ptMax, "|#eta| < 2.5" );
 
-  drawPlot( db, h1_qgl_new_F_gluon, h1_qgl_new_F_quark, "new_F", ptMin, ptMax );
-  drawPlot( db, h1_qgbdt_F_gluon, h1_qgbdt_F_quark, "bdt_F", ptMin, ptMax );
+  drawPlot( db, h1_qgl_new_F_gluon, h1_qgl_new_F_quark, "new_F", ptMin, ptMax, "2.5 < |#eta| < 5" );
+  drawPlot( db, h1_qgbdt_F_gluon, h1_qgbdt_F_quark, "bdt_F", ptMin, ptMax, "2.5 < |#eta| < 5" );
 
-  drawRoC(db, ptMin, ptMax, "", h1_qgl_new_gluon, h1_qgl_new_quark, h1_qgl_old_gluon, h1_qgl_old_quark, 0, 0);
-  drawRoC(db, ptMin, ptMax, "_withBDT", h1_qgl_new_gluon, h1_qgl_new_quark, h1_qgl_old_gluon, h1_qgl_old_quark, h1_qgbdt_gluon, h1_qgbdt_quark);
-  drawRoC(db, ptMin, ptMax, "_F", h1_qgl_new_gluon, h1_qgl_new_quark, 0, 0, h1_qgbdt_F_gluon, h1_qgbdt_F_quark);
+  drawRoC(db, ptMin, ptMax, "", h1_qgl_new_gluon, h1_qgl_new_quark, h1_qgl_old_gluon, h1_qgl_old_quark, 0, 0, "|#eta| < 2.5");
+  drawRoC(db, ptMin, ptMax, "_withBDT", h1_qgl_new_gluon, h1_qgl_new_quark, h1_qgl_old_gluon, h1_qgl_old_quark, h1_qgbdt_gluon, h1_qgbdt_quark, "|#eta| < 2.5");
+  drawRoC(db, ptMin, ptMax, "_F", h1_qgl_new_gluon, h1_qgl_new_quark, 0, 0, h1_qgbdt_F_gluon, h1_qgbdt_F_quark, "2.5 < |#eta| < 5");
 
   delete h1_qgl_old_gluon;
   delete h1_qgl_old_quark;
@@ -183,7 +187,7 @@ void drawSinglePtBin( DrawBase* db, QGLikelihoodCalculator* qglc, TTree* tree, f
 
 
 
-void drawPlot( DrawBase* db, TH1D* h1_gluon, TH1D* h1_quark, std::string name, float ptMin, float ptMax ) {
+void drawPlot( DrawBase* db, TH1D* h1_gluon, TH1D* h1_quark, std::string name, float ptMin, float ptMax, const std::string& labelText ) {
 
 
   h1_quark->Rebin(2);
@@ -218,9 +222,15 @@ void drawPlot( DrawBase* db, TH1D* h1_gluon, TH1D* h1_quark, std::string name, f
   h1_quark->DrawNormalized("same");
   h1_gluon->DrawNormalized("same");
 
+
+  bool isBDT = h1_gluon->GetXaxis()->GetXmax()<1.;
+
+  float xMin_legend = (isBDT) ? 0.2 : 0.55;
+  float xMax_legend = (isBDT) ? 0.5 : 0.8;
+
   char legendTitle[300];
   sprintf( legendTitle, "%.0f < p_{T} < %.0f GeV", ptMin, ptMax );
-  TLegend* legend = new TLegend( 0.55, 0.7, 0.8, 0.9, legendTitle );
+  TLegend* legend = new TLegend( xMin_legend, 0.7, xMax_legend, 0.9, legendTitle );
   legend->SetFillColor(0);
   legend->SetTextSize(0.04);
   legend->AddEntry( h1_quark, "Quark Jets", "F");
@@ -232,8 +242,19 @@ void drawPlot( DrawBase* db, TH1D* h1_gluon, TH1D* h1_quark, std::string name, f
 
 
 
-  TPaveText* label = db->get_labelTop();
-  label->Draw("same");
+  TPaveText* labelTop = db->get_labelTop();
+  labelTop->Draw("same");
+
+  float xMin_label = isBDT ? 0.7 : 0.2;
+  float xMax_label = isBDT ? 0.9 : 0.4;
+
+  TPaveText* label = new TPaveText( xMin_label, 0.83, xMax_label, 0.9, "brNDC" );
+  label->SetTextSize(0.04);
+  label->SetFillColor(0);
+  label->AddText(labelText.c_str());
+  if( labelText!="" )
+    label->Draw("same");
+
 
   gPad->RedrawAxis();
 
@@ -250,7 +271,7 @@ void drawPlot( DrawBase* db, TH1D* h1_gluon, TH1D* h1_quark, std::string name, f
 }
 
 
-void drawRoC( DrawBase* db, float ptMin, float ptMax, const std::string& flag, TH1D* h1_new_gluon, TH1D* h1_new_quark, TH1D* h1_old_gluon, TH1D* h1_old_quark, TH1D* h1_bdt_gluon, TH1D* h1_bdt_quark) {
+void drawRoC( DrawBase* db, float ptMin, float ptMax, const std::string& flag, TH1D* h1_new_gluon, TH1D* h1_new_quark, TH1D* h1_old_gluon, TH1D* h1_old_quark, TH1D* h1_bdt_gluon, TH1D* h1_bdt_quark, const std::string& labelText ) {
 
 
   TGraph* gr_RoC_old = new TGraph(0);
@@ -304,7 +325,7 @@ void drawRoC( DrawBase* db, float ptMin, float ptMax, const std::string& flag, T
   if( h1_bdt_quark!=0 && h1_bdt_gluon!=0 ) {
     gr_RoC_bdt->SetMarkerSize(1.3);
     gr_RoC_bdt->SetMarkerStyle(21);
-    gr_RoC_bdt->SetMarkerColor(38);
+    gr_RoC_bdt->SetMarkerColor(29);
   }
 
   TCanvas* c1 = new TCanvas("c1_roc", "", 600, 600);
@@ -332,8 +353,16 @@ void drawRoC( DrawBase* db, float ptMin, float ptMax, const std::string& flag, T
     legend->AddEntry( gr_RoC_bdt, "BDT", "P");
   legend->Draw("same");
 
-  TPaveText* label = db->get_labelTop();
-  label->Draw("same");
+  TPaveText* labelTop = db->get_labelTop();
+  labelTop->Draw("same");
+
+  TPaveText* label = new TPaveText( 0.7, 0.83, 0.9, 0.9, "brNDC" );
+  label->SetTextSize(0.04);
+  label->SetFillColor(0);
+  label->AddText(labelText.c_str());
+  if( labelText!="" )
+    label->Draw("same");
+
   
   if( h1_bdt_quark!=0 && h1_bdt_gluon!=0 ) 
     gr_RoC_bdt->Draw("p same");
