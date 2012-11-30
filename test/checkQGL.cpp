@@ -132,7 +132,7 @@ void drawSinglePtBin( DrawBase* db, QGLikelihoodCalculator* qglc, TTree* tree, f
         h1_qgbdt_gluon->Fill( qglPaoloJet0 );
       }
 
-    } else if( fabs(eta)>2.5 ) {
+    } else if( fabs(eta)>3. ) {
 
       if( fabs(pdgId)<5 ) {
         h1_qgl_new_F_quark->Fill( qgl_new );
@@ -158,12 +158,12 @@ void drawSinglePtBin( DrawBase* db, QGLikelihoodCalculator* qglc, TTree* tree, f
   drawPlot( db, h1_qgl_new_gluon, h1_qgl_new_quark, "new", ptMin, ptMax, "|#eta| < 2.5" );
   drawPlot( db, h1_qgbdt_gluon, h1_qgbdt_quark, "bdt", ptMin, ptMax, "|#eta| < 2.5" );
 
-  drawPlot( db, h1_qgl_new_F_gluon, h1_qgl_new_F_quark, "new_F", ptMin, ptMax, "2.5 < |#eta| < 5" );
-  drawPlot( db, h1_qgbdt_F_gluon, h1_qgbdt_F_quark, "bdt_F", ptMin, ptMax, "2.5 < |#eta| < 5" );
+  drawPlot( db, h1_qgl_new_F_gluon, h1_qgl_new_F_quark, "new_F", ptMin, ptMax, "3 < |#eta| < 5" );
+  drawPlot( db, h1_qgbdt_F_gluon, h1_qgbdt_F_quark, "bdt_F", ptMin, ptMax, "3 < |#eta| < 5" );
 
   drawRoC(db, ptMin, ptMax, "", h1_qgl_new_gluon, h1_qgl_new_quark, h1_qgl_old_gluon, h1_qgl_old_quark, 0, 0, "|#eta| < 2.5");
   drawRoC(db, ptMin, ptMax, "_withBDT", h1_qgl_new_gluon, h1_qgl_new_quark, h1_qgl_old_gluon, h1_qgl_old_quark, h1_qgbdt_gluon, h1_qgbdt_quark, "|#eta| < 2.5");
-  drawRoC(db, ptMin, ptMax, "_F", h1_qgl_new_gluon, h1_qgl_new_quark, 0, 0, h1_qgbdt_F_gluon, h1_qgbdt_F_quark, "2.5 < |#eta| < 5");
+  drawRoC(db, ptMin, ptMax, "_F", h1_qgl_new_F_gluon, h1_qgl_new_F_quark, 0, 0, h1_qgbdt_F_gluon, h1_qgbdt_F_quark, "3 < |#eta| < 5");
 
   delete h1_qgl_old_gluon;
   delete h1_qgl_old_quark;
