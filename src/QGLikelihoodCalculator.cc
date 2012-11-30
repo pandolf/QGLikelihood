@@ -259,6 +259,7 @@ rhoMax=floor(rhoMax);
 
 for(unsigned int i=0;i<vars.size();i++){
 //get Histo
+	float Qi,Gi,mQ,mG;
 	#ifdef DEBUG
 	fprintf(stderr,"var %d = %s, value = %f\n",i,varName[i].c_str(), vars[i]);
 	#endif
@@ -270,10 +271,8 @@ for(unsigned int i=0;i<vars.size();i++){
 	if( plots_[histoName] == NULL ) fprintf(stderr,"Histo %s does not exists\n",histoName); //DEBUG
 	plots_[ histoName]->Scale(1./plots_[histoName]->Integral("width")); 
 
-	Q*=plots_[histoName]->GetBinContent(plots_[histoName]->FindBin(vars[i]));
-	#ifdef DEBUG
-	fprintf(stderr,"Q: %f\n",Q);
-	#endif
+	Qi=plots_[histoName]->GetBinContent(plots_[histoName]->FindBin(vars[i]));
+	mQ=plots_[histoName]->GetMean();
 	
   	sprintf( histoName, "rhoBins_pt%.0f_%.0f/%s_gluon_pt%.0f_%.0f_rho%.0f", ptMin, ptMax,varName[i].c_str(), ptMin, ptMax, rhoMin);
 	#ifdef DEBUG
@@ -282,7 +281,28 @@ for(unsigned int i=0;i<vars.size();i++){
 	if( plots_[histoName] == NULL ){plots_[histoName]=(TH1F*)histoFile_->Get(histoName);}
 	if( plots_[histoName] == NULL ) fprintf(stderr,"Histo %s does not exists\n",histoName); //DEBUG
 	plots_[ histoName]->Scale(1./plots_[histoName]->Integral("width")); 
-	G*=plots_[histoName]->GetBinContent(plots_[histoName]->FindBin(vars[i]));
+	Gi=plots_[histoName]->GetBinContent(plots_[histoName]->FindBin(vars[i]));
+	mG=plots_[histoName]->GetMean();
+	
+	float epsilon=0;
+	float delta=0.000001;
+	if( Qi<=epsilon && Gi<=epsilon){
+		if(mQ>mG)
+			{if(vars[i]>mQ) {Qi=1-delta;Gi=delta;}
+			else if(vars[i]<mG){Qi=delta;Gi=1-delta;}
+			}
+		else if(mQ<mG)
+			{if(vars[i]<mQ) {Qi=1-delta;Gi=delta;}
+			else if(vars[i]>mG){Qi=delta;Gi=1-delta;}
+			}
+	} 
+
+	Q*=Qi;
+	G*=Gi;	
+	
+	#ifdef DEBUG
+	fprintf(stderr,"Q: %f\n",Q);
+	#endif
 	#ifdef DEBUG
 	fprintf(stderr,"G: %f\n",G);
 	#endif
@@ -292,11 +312,6 @@ if(Q==0) return 0;
 return Q/(Q+G);
 
 }
-
-
-
-
-
 
 
 float QGLikelihoodCalculator::likelihoodProduct( float nCharged, float nNeutral, float ptD, float rmsCand, TH1F* h1_nCharged, TH1F* h1_nNeutral, TH1F* h1_ptD, TH1F* h1_rmsCand) {
