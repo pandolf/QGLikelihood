@@ -199,8 +199,13 @@ void drawPlot( DrawBase* db, TH1D* h1_gluon, TH1D* h1_quark, std::string name, f
 
   float ymax = hmax*1.2;
 
+  bool isBDT = h1_gluon->GetXaxis()->GetXmax()<1.;
+
   TH2D* h2_axes = new TH2D("axes", "", 10, h1_gluon->GetXaxis()->GetXmin(), h1_gluon->GetXaxis()->GetXmax(), 10, 0., ymax);
-  h2_axes->SetXTitle("Quark-Gluon Likelihood Discriminator");
+  if( isBDT )
+    h2_axes->SetXTitle("Quark-Gluon BDT Discriminator");
+  else
+    h2_axes->SetXTitle("Quark-Gluon Likelihood Discriminator");
   h2_axes->SetYTitle("Normalized To Unity");
 
   TCanvas* c1 = new TCanvas("c1", "", 600, 600);
@@ -223,7 +228,6 @@ void drawPlot( DrawBase* db, TH1D* h1_gluon, TH1D* h1_quark, std::string name, f
   h1_gluon->DrawNormalized("same");
 
 
-  bool isBDT = h1_gluon->GetXaxis()->GetXmax()<1.;
 
   float xMin_legend = (isBDT) ? 0.2 : 0.55;
   float xMax_legend = (isBDT) ? 0.5 : 0.8;
