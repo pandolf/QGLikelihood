@@ -34,11 +34,6 @@ QGLikelihoodCalculator::QGLikelihoodCalculator( const std::string& fileName, uns
 // ADD map destructor
 QGLikelihoodCalculator::~QGLikelihoodCalculator()
 {
-map<string,TH1F*>::iterator it;
-for(it=plots_.begin();it!=plots_.end();it++)
-	{
-	delete it->second;
-	}
 }
 
 
