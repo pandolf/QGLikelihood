@@ -26,7 +26,7 @@ int main() {
 
   DrawBase* db = new DrawBase("prova");
 
-  db->set_outputdir("NormalizedPlotsMC");
+  db->set_outputdir("QGLMCPlots");
   
 
   //drawOneVariable( db, tree, "ptD_QCJet", "p_{T}D", 50, 0., 1.0001);
@@ -41,12 +41,13 @@ int main() {
 
   QGLikelihoodCalculator* qglc;
   //if( Summer12 ) qglc = new QGLikelihoodCalculator("/afs/cern.ch/work/p/pandolf/CMSSW_5_3_6/src/QG/QGLikelihood/test/Histos_2012.root");
-  if( Summer12 ) qglc = new QGLikelihoodCalculator("/afs/cern.ch/work/p/pandolf/public/Histos_2012_NEW.root");
+  //if( Summer12 ) qglc = new QGLikelihoodCalculator("/afs/cern.ch/work/p/pandolf/public/Histos_2012_NEW.root");
+  if( Summer12 ) qglc = new QGLikelihoodCalculator("/afs/cern.ch/work/p/pandolf/public/ReducedHisto_2012.root");
   else           qglc = new QGLikelihoodCalculator("/afs/cern.ch/work/p/pandolf/CMSSW_5_3_6/src/QG/QGLikelihood/test/Histos.root");
 
 
   //drawSinglePtBin( db, qglc, tree, 20., 25. );
-  //drawSinglePtBin( db, qglc, tree, 25., 30. );
+  drawSinglePtBin( db, qglc, tree, 20., 30. );
   drawSinglePtBin( db, qglc, tree, 30., 40. );
   //drawSinglePtBin( db, qglc, tree, 40., 50. );
   drawSinglePtBin( db, qglc, tree, 50., 65. );
@@ -309,12 +310,13 @@ void drawSinglePtBin( DrawBase* db, QGLikelihoodCalculator* qglc, TTree* tree, f
   drawPlot( db, h1_qgl_newHisto_F_gluon, h1_qgl_newHisto_F_quark, "newHisto_F", ptMin, ptMax, "3 < |#eta| < 5" );
   drawPlot( db, h1_qgMLP_F_gluon, h1_qgMLP_F_quark, "MLP_F", ptMin, ptMax, "3 < |#eta| < 5" );
 
-  drawRoC(db, ptMin, ptMax, "", h1_qgl_new_gluon, h1_qgl_new_quark, h1_qgl_old_gluon, h1_qgl_old_quark, 0, 0, "|#eta| < 2");
-  drawRoC(db, ptMin, ptMax, "_withMLP", h1_qgl_new_gluon, h1_qgl_new_quark, h1_qgl_old_gluon, h1_qgl_old_quark, h1_qgMLP_gluon, h1_qgMLP_quark, "|#eta| < 2");
+  drawRoC(db, ptMin, ptMax, "", h1_qgl_newHisto_gluon, h1_qgl_newHisto_quark, h1_qgl_old_gluon, h1_qgl_old_quark, 0, 0, "|#eta| < 2");
+  drawRoC(db, ptMin, ptMax, "_withMLP", h1_qgl_newHisto_gluon, h1_qgl_newHisto_quark, h1_qgl_old_gluon, h1_qgl_old_quark, h1_qgMLP_gluon, h1_qgMLP_quark, "|#eta| < 2");
+  drawRoC(db, ptMin, ptMax, "_T", h1_qgl_newHisto_T_gluon, h1_qgl_newHisto_T_quark, h1_qgl_old_T_gluon, h1_qgl_old_T_quark, h1_qgMLP_T_gluon, h1_qgMLP_T_quark, "2 < |#eta| < 2.5");
+  drawRoC(db, ptMin, ptMax, "_F", h1_qgl_newHisto_F_gluon, h1_qgl_newHisto_F_quark, 0, 0, h1_qgMLP_F_gluon, h1_qgMLP_F_quark, "3 < |#eta| < 5");
+
   drawRoC(db, ptMin, ptMax, "_vsHisto", h1_qgl_new_gluon, h1_qgl_new_quark, h1_qgl_newHisto_gluon, h1_qgl_newHisto_quark, 0, 0, "|#eta| < 2");
-  drawRoC(db, ptMin, ptMax, "_T", h1_qgl_new_T_gluon, h1_qgl_new_T_quark, h1_qgl_old_T_gluon, h1_qgl_old_T_quark, h1_qgMLP_T_gluon, h1_qgMLP_T_quark, "2 < |#eta| < 2.5");
   drawRoC(db, ptMin, ptMax, "_T_vsHisto", h1_qgl_new_T_gluon, h1_qgl_new_T_quark, h1_qgl_newHisto_T_gluon, h1_qgl_newHisto_T_quark, 0, 0, "2 < |#eta| < 2.5");
-  drawRoC(db, ptMin, ptMax, "_F", h1_qgl_new_F_gluon, h1_qgl_new_F_quark, 0, 0, h1_qgMLP_F_gluon, h1_qgMLP_F_quark, "3 < |#eta| < 5");
   drawRoC(db, ptMin, ptMax, "_F_vsHisto", h1_qgl_new_F_gluon, h1_qgl_new_F_quark, h1_qgl_newHisto_F_gluon, h1_qgl_newHisto_F_quark, 0, 0, "3 < |#eta| < 5");
 
   delete h1_qgl_old_gluon;
@@ -435,8 +437,11 @@ void drawPlot( DrawBase* db, TH1D* h1_gluon, TH1D* h1_quark, std::string name, f
   char canvasName[500];
   sprintf( canvasName, "%s/qgl_%s_pt%.0f_%.0f.eps", db->get_outputdir().c_str(), name.c_str(), ptMin, ptMax);
   c1->SaveAs(canvasName);
+  std::string command = "epstopdf " + canvasName;
+  system( command.c_str() );
   sprintf( canvasName, "%s/qgl_%s_pt%.0f_%.0f.png", db->get_outputdir().c_str(), name.c_str(), ptMin, ptMax);
   c1->SaveAs(canvasName);
+
 
   delete c1;
   delete h2_axes;
@@ -549,6 +554,8 @@ void drawRoC( DrawBase* db, float ptMin, float ptMax, const std::string& flag, T
   char canvasName[500];
   sprintf( canvasName, "%s/RoC_pt%.0f_%.0f%s.eps", db->get_outputdir().c_str(), ptMin, ptMax, flag.c_str());
   c1->SaveAs(canvasName);
+  std::string command = "epstopdf " + canvasName;
+  system( command.c_str() );
   sprintf( canvasName, "%s/RoC_pt%.0f_%.0f%s.png", db->get_outputdir().c_str(), ptMin, ptMax, flag.c_str());
   c1->SaveAs(canvasName);
 
