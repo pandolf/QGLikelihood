@@ -131,7 +131,8 @@ void drawOneVariable( DrawBase* db, TTree* tree, const std::string& varName, con
 
   std::string canvasName = db->get_outputdir() + "/" + varName.c_str() + ".eps";
   c1->SaveAs(canvasName.c_str());
-  std::string command = "epstopdf " + canvasName;
+  std::string canvasName_str(canvasName);
+  std::string command = "epstopdf " + canvasName_str;
   system( command.c_str() );
 
   delete c1;
@@ -437,7 +438,8 @@ void drawPlot( DrawBase* db, TH1D* h1_gluon, TH1D* h1_quark, std::string name, f
   char canvasName[500];
   sprintf( canvasName, "%s/qgl_%s_pt%.0f_%.0f.eps", db->get_outputdir().c_str(), name.c_str(), ptMin, ptMax);
   c1->SaveAs(canvasName);
-  std::string command = "epstopdf " + canvasName;
+  std::string canvasName_str(canvasName);
+  std::string command = "epstopdf " + canvasName_str;
   system( command.c_str() );
   sprintf( canvasName, "%s/qgl_%s_pt%.0f_%.0f.png", db->get_outputdir().c_str(), name.c_str(), ptMin, ptMax);
   c1->SaveAs(canvasName);
@@ -554,7 +556,8 @@ void drawRoC( DrawBase* db, float ptMin, float ptMax, const std::string& flag, T
   char canvasName[500];
   sprintf( canvasName, "%s/RoC_pt%.0f_%.0f%s.eps", db->get_outputdir().c_str(), ptMin, ptMax, flag.c_str());
   c1->SaveAs(canvasName);
-  std::string command = "epstopdf " + canvasName;
+  std::string canvasName_eps(canvasName);
+  std::string command = "epstopdf " + canvasName_eps;
   system( command.c_str() );
   sprintf( canvasName, "%s/RoC_pt%.0f_%.0f%s.png", db->get_outputdir().c_str(), ptMin, ptMax, flag.c_str());
   c1->SaveAs(canvasName);
