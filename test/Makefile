@@ -17,6 +17,9 @@ EXTRALIBS  :=  -L$(ROOTSYS)/lib -L$(ROOFIT_LIBDIR)/ -L$(CMSSW_BASE)/lib/slc5_amd
 checkQGL: DrawBase.o fitTools.o Bins.o QGLikelihoodCalculator.o checkQGL.cpp
 	$(CC) -Wall $(INCLUDES) -o checkQGL checkQGL.cpp DrawBase.o fitTools.o Bins.o QGLikelihoodCalculator.o $(ROOTFLAG) $(EXTRALIBS)
 
+drawQGLMCPlots: DrawBase.o fitTools.o Bins.o QGLikelihoodCalculator.o drawQGLMCPlots.cpp
+	$(CC) -Wall $(INCLUDES) -o drawQGLMCPlots drawQGLMCPlots.cpp DrawBase.o fitTools.o Bins.o QGLikelihoodCalculator.o $(ROOTFLAG) $(EXTRALIBS)
+
 
 
 TFitParticleEtEtaPhi.o: $(CMSSW_BASE)/src/UserCode/pandolf/KinematicFit/TFitParticleEtEtaPhi.cc
