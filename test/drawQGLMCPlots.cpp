@@ -807,6 +807,8 @@ void compareSingleVariable( const std::string& varName, const std::string& axisN
 
     for( unsigned iEntry=0; iEntry<tree->GetEntries(); ++iEntry ) {
 
+      tree->GetEntry(iEntry);
+
       float qgl_newHisto = qglc_tmp->computeQGLikelihood2012( pt[0], eta[0], rho, nCharged_QC[0]+nNeutral_ptCut[0], ptD_QC[0], axis2_QC[0]);
     
       if( fabs(pdgId[0])<4 ) {
@@ -832,6 +834,8 @@ void compareSingleVariable( const std::string& varName, const std::string& axisN
 
 
     for( unsigned iEntry=0; iEntry<tree_herwig->GetEntries(); ++iEntry ) {
+
+      tree_herwig->GetEntry(iEntry);
 
       float qgl_newHisto = qglc_tmp->computeQGLikelihood2012( pt[0], eta[0], rho, nCharged_QC[0]+nNeutral_ptCut[0], ptD_QC[0], axis2_QC[0]);
     
