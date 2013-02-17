@@ -214,6 +214,15 @@ tree->Add("/cmsrm/pc25_2/pandolf/MC/Summer12/QCD_Pt-15to3000_TuneZ2_Flat_8TeV_py
   tree_herwig->Add("/cmsrm/pc25_2/pandolf/MC/Summer12/QCD_Pt-15to3000_TuneEE3C_Flat_8TeV_herwigpp_Summer12_DR53X-PU_S10_START53_V7A-v1_finalQG_withCHS_JEC53X/QG_2ndLevelTree_QCD_Pt-15to3000_TuneEE3C_Flat_8TeV_herwigpp_Summer12_DR53X-PU_S10_START53_V7A-v1_finalQG_withCHS_JEC53X_*.root/reducedTree");
 
   compareTrees( db, tree, tree_herwig, 20., 30., 0., 2. );
+  compareTrees( db, tree, tree_herwig, 30., 40., 0., 2. );
+  compareTrees( db, tree, tree_herwig, 80., 120., 0., 2. );
+  compareTrees( db, tree, tree_herwig, 200., 250., 0., 2. );
+  compareTrees( db, tree, tree_herwig, 500., 600., 0., 2. );
+
+  compareTrees( db, tree, tree_herwig, 20., 30., 3., 5. );
+  compareTrees( db, tree, tree_herwig, 30., 40., 3., 5. );
+  compareTrees( db, tree, tree_herwig, 50., 65., 3., 5. );
+  compareTrees( db, tree, tree_herwig, 80., 120., 3., 5. );
 
   return 0;
 
@@ -749,8 +758,12 @@ void compareTrees( DrawBase* db, TTree* tree, TTree* tree_herwig, float ptMin, f
 
 
   compareSingleVariable( "ptD_QCJet", "p_{T}D", 50, 0., 1.0001, db, tree, tree_herwig, ptMin, ptMax, etaMin, etaMax );
+  compareSingleVariable( "axis1_QCJet", "Axis_{1}", 50, 0., 0.3, db, tree, tree_herwig, ptMin, ptMax, etaMin, etaMax );
+  compareSingleVariable( "axis2_QCJet", "Axis_{2}", 50, 0., 0.3, db, tree, tree_herwig, ptMin, ptMax, etaMin, etaMax );
+  compareSingleVariable( "nPFCand_QC_ptCut", "PFCandidate Multiplicity", 50, 0., 100., db, tree, tree_herwig, ptMin, ptMax, etaMin, etaMax );
 
   compareSingleVariable( "qgl", "Quark-Gluon Likelihood Discriminator", 50, 0., 1.0001, db, tree, tree_herwig, ptMin, ptMax, etaMin, etaMax );
+  compareSingleVariable( "qgMLPJet", "Quark-Gluon MLP Discriminator", 50, 0., 1.0001, db, tree, tree_herwig, ptMin, ptMax, etaMin, etaMax );
 
 
 
@@ -809,6 +822,11 @@ void compareSingleVariable( const std::string& varName, const std::string& axisN
 
       tree->GetEntry(iEntry);
 
+      if( pt[0]<ptMin ) continue;
+      if( pt[0]>ptMax ) continue;
+      if( abs(eta[0])<etaMin ) continue;
+      if( abs(eta[0])>etaMax ) continue;
+
       float qgl_newHisto = qglc_tmp->computeQGLikelihood2012( pt[0], eta[0], rho, nCharged_QC[0]+nNeutral_ptCut[0], ptD_QC[0], axis2_QC[0]);
     
       if( fabs(pdgId[0])<4 ) {
@@ -836,6 +854,11 @@ void compareSingleVariable( const std::string& varName, const std::string& axisN
     for( unsigned iEntry=0; iEntry<tree_herwig->GetEntries(); ++iEntry ) {
 
       tree_herwig->GetEntry(iEntry);
+
+      if( pt[0]<ptMin ) continue;
+      if( pt[0]>ptMax ) continue;
+      if( abs(eta[0])<etaMin ) continue;
+      if( abs(eta[0])>etaMax ) continue;
 
       float qgl_newHisto = qglc_tmp->computeQGLikelihood2012( pt[0], eta[0], rho, nCharged_QC[0]+nNeutral_ptCut[0], ptD_QC[0], axis2_QC[0]);
     
