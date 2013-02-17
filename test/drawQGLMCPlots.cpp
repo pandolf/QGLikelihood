@@ -18,7 +18,7 @@ void drawPlot( DrawBase* db, TH1D* h1_gluon, TH1D* h1_quark, std::string name, f
 void drawRoC( DrawBase* db, float ptMin, float ptMax, const std::string& flag, TH1D* h1_new_gluon, TH1D* h1_new_quark, TH1D* h1_old_gluon, TH1D* h1_old_quark, TH1D* h1_MLP_gluon=0, TH1D* h1_MLP_quark=0, const std::string& labelText="" );
 
 void compareTrees( DrawBase* db, TTree* tree, TTree* tree_herwig, float ptMin, float ptMax, float etaMin, float etaMax );
-void compareSingleVariable( const std::string& varName, const std::string& axisName, int nbins, float xmin, float xmax, DrawBase* db, TTree* tree, TTree* tree_herwig, float ptMin, float ptMax, float etaMin, float etaMax );
+void compareSingleVariable( std::string varName, const std::string& axisName, int nbins, float xmin, float xmax, DrawBase* db, TTree* tree, TTree* tree_herwig, float ptMin, float ptMax, float etaMin, float etaMax, const std::string& varExpression="" );
 
 
 int main() {
@@ -760,7 +760,7 @@ void compareTrees( DrawBase* db, TTree* tree, TTree* tree_herwig, float ptMin, f
   compareSingleVariable( "ptD_QCJet", "p_{T}D", 50, 0., 1.0001, db, tree, tree_herwig, ptMin, ptMax, etaMin, etaMax );
   compareSingleVariable( "axis1_QCJet", "Axis_{1}", 50, 0., 0.3, db, tree, tree_herwig, ptMin, ptMax, etaMin, etaMax );
   compareSingleVariable( "axis2_QCJet", "Axis_{2}", 50, 0., 0.3, db, tree, tree_herwig, ptMin, ptMax, etaMin, etaMax );
-  compareSingleVariable( "nPFCand_QC_ptCut", "PFCandidate Multiplicity", 50, 0., 100., db, tree, tree_herwig, ptMin, ptMax, etaMin, etaMax );
+  compareSingleVariable( "nPFCand_QC_ptCut", "PFCandidate Multiplicity", 50, 0., 100., db, tree, tree_herwig, ptMin, ptMax, etaMin, etaMax, "nChg_QCJet[0] + nNeutral_ptCutJet[0]" );
 
   compareSingleVariable( "qgl", "Quark-Gluon Likelihood Discriminator", 50, 0., 1.0001, db, tree, tree_herwig, ptMin, ptMax, etaMin, etaMax );
   compareSingleVariable( "qgMLPJet", "Quark-Gluon MLP Discriminator", 50, 0., 1.0001, db, tree, tree_herwig, ptMin, ptMax, etaMin, etaMax );
@@ -770,7 +770,7 @@ void compareTrees( DrawBase* db, TTree* tree, TTree* tree_herwig, float ptMin, f
 }
 
 
-void compareSingleVariable( const std::string& varName, const std::string& axisName, int nbins, float xmin, float xmax, DrawBase* db, TTree* tree, TTree* tree_herwig, float ptMin, float ptMax, float etaMin, float etaMax ) {
+void compareSingleVariable( std::string varName, const std::string& axisName, int nbins, float xmin, float xmax, DrawBase* db, TTree* tree, TTree* tree_herwig, float ptMin, float ptMax, float etaMin, float etaMax, const std::string& varExpression ) {
 
   std::cout << "Herwig-Pythia comparison: " << varName << ", "<< ptMin << " < pt < " << ptMax << " GeV, " << etaMin << " < |eta| < " << etaMax << std::endl;
 
@@ -783,18 +783,21 @@ void compareSingleVariable( const std::string& varName, const std::string& axisN
   if( varName != "qgl" ) {
 
     char selection[500];
-    sprintf( selection, "ptJet>%f && ptJet<%f && abs(etaJet)>%f && abs(etaJet)<%f", ptMin, ptMax, etaMin, etaMax);
+    sprintf( selection, "ptJet[0]>%f && ptJet[0]<%f && abs(etaJet[0])>%f && abs(etaJet[0])<%f", ptMin, ptMax, etaMin, etaMax);
    
     char selection_quark[500];
-    sprintf( selection_quark, "%s && abs(pdgIdJet)<4", selection );
+    sprintf( selection_quark, "%s && abs(pdgIdJet[0])<4", selection );
     char selection_gluon[500];
-    sprintf( selection_gluon, "%s && pdgIdJet==21", selection );
+    sprintf( selection_gluon, "%s && pdgIdJet[0]==21", selection );
 
+    std::string treeVar;
+    if( varExpression!="" ) treeVar = varExpression;
+    else                    treeVar = varName + "[0]";
 
-    tree->Project("pythia_quark", varName.c_str(), selection_quark);
-    tree->Project("pythia_gluon", varName.c_str(), selection_gluon);
-    tree_herwig->Project("herwig_quark", varName.c_str(), selection_quark);
-    tree_herwig->Project("herwig_gluon", varName.c_str(), selection_gluon);
+    tree->Project("pythia_quark", treeVar.c_str(), selection_quark);
+    tree->Project("pythia_gluon", treeVar.c_str(), selection_gluon);
+    tree_herwig->Project("herwig_quark", treeVar.c_str(), selection_quark);
+    tree_herwig->Project("herwig_gluon", treeVar.c_str(), selection_gluon);
 
   } else {
 
@@ -911,10 +914,6 @@ void compareSingleVariable( const std::string& varName, const std::string& axisN
   c1->cd();
 
   h2_axes->Draw();
-  h1_pythia_quark->DrawNormalized("same");
-  h1_pythia_gluon->DrawNormalized("same");
-  h1_herwig_quark->DrawNormalized("p same");
-  h1_herwig_gluon->DrawNormalized("p same");
 
   char legendTitle[300];
   sprintf( legendTitle, "%.0f < p_{T} < %.0f GeV", ptMin, ptMax );
@@ -926,6 +925,11 @@ void compareSingleVariable( const std::string& varName, const std::string& axisN
   legend->AddEntry( h1_herwig_quark, "Quarks (Herwig)", "P" );
   legend->AddEntry( h1_herwig_gluon, "Gluons (Herwig)", "P" );
   legend->Draw("same");
+
+  h1_pythia_quark->DrawNormalized("same");
+  h1_pythia_gluon->DrawNormalized("same");
+  h1_herwig_quark->DrawNormalized("p same");
+  h1_herwig_gluon->DrawNormalized("p same");
 
   TPaveText* labelTop = db->get_labelTop();
   labelTop->Draw("same");
