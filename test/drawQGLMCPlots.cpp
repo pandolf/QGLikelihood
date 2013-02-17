@@ -17,6 +17,9 @@ void drawSinglePtBin( DrawBase* db, QGLikelihoodCalculator* qglc,  QGLikelihoodC
 void drawPlot( DrawBase* db, TH1D* h1_gluon, TH1D* h1_quark, std::string name, float ptMin, float ptMax, const std::string& labelText="" );
 void drawRoC( DrawBase* db, float ptMin, float ptMax, const std::string& flag, TH1D* h1_new_gluon, TH1D* h1_new_quark, TH1D* h1_old_gluon, TH1D* h1_old_quark, TH1D* h1_MLP_gluon=0, TH1D* h1_MLP_quark=0, const std::string& labelText="" );
 
+void compareTrees( DrawBase* db, TTree* tree, TTree* tree_herwig, float ptMin, float ptMax, float etaMin, float etaMax );
+void compareSingleVariable( const std::string& varName, const std::string& axisName, int nbins, float xmin, float xmax, DrawBase* db, TTree* tree, TTree* tree_herwig, float ptMin, float ptMax, float etaMin, float etaMax );
+
 
 int main() {
 
@@ -188,20 +191,29 @@ tree->Add("/cmsrm/pc25_2/pandolf/MC/Summer12/QCD_Pt-15to3000_TuneZ2_Flat_8TeV_py
   //drawOneVariable( db, tree, "nChargedJet", "Charged Multiplicity", 50, 0., 100.);
   //drawOneVariable( db, tree, "nNeutralJet", "Neutral Multiplicity", 50, 0., 100.);
 
-  QGLikelihoodCalculator* qglc, *qglc_old;
-  //if( Summer12 ) qglc = new QGLikelihoodCalculator("/afs/cern.ch/work/p/pandolf/CMSSW_5_3_6/src/QG/QGLikelihood/test/Histos_2012.root");
-  //if( Summer12 ) qglc = new QGLikelihoodCalculator("/afs/cern.ch/work/p/pandolf/public/Histos_2012_NEW.root");
-  if( Summer12 ) qglc = new QGLikelihoodCalculator("/afs/cern.ch/work/p/pandolf/public/ReducedHisto_2012.root");
-  else           qglc = new QGLikelihoodCalculator("/afs/cern.ch/work/p/pandolf/CMSSW_5_3_6/src/QG/QGLikelihood/test/Histos.root");
+//    QGLikelihoodCalculator* qglc, *qglc_old;
+//    //if( Summer12 ) qglc = new QGLikelihoodCalculator("/afs/cern.ch/work/p/pandolf/CMSSW_5_3_6/src/QG/QGLikelihood/test/Histos_2012.root");
+//    //if( Summer12 ) qglc = new QGLikelihoodCalculator("/afs/cern.ch/work/p/pandolf/public/Histos_2012_NEW.root");
+//    if( Summer12 ) qglc = new QGLikelihoodCalculator("/afs/cern.ch/work/p/pandolf/public/ReducedHisto_2012.root");
+//    else           qglc = new QGLikelihoodCalculator("/afs/cern.ch/work/p/pandolf/CMSSW_5_3_6/src/QG/QGLikelihood/test/Histos.root");
+//  
+//    qglc_old = new QGLikelihoodCalculator("/afs/cern.ch/work/p/pandolf/public/Histos_2012_NEW.root");
+//  
+//    drawSinglePtBin( db, qglc, qglc_old, tree, 20., 30. );
+//    drawSinglePtBin( db, qglc, qglc_old, tree, 30., 40. );
+//    drawSinglePtBin( db, qglc, qglc_old, tree, 50., 65. );
+//    drawSinglePtBin( db, qglc, qglc_old, tree, 80., 100. );
+//    drawSinglePtBin( db, qglc, qglc_old, tree, 200., 250. );
+//    drawSinglePtBin( db, qglc, qglc_old, tree, 500., 600. );
 
-  qglc_old = new QGLikelihoodCalculator("/afs/cern.ch/work/p/pandolf/public/Histos_2012_NEW.root");
+//    delete qglc;
+//    delete qglc_old;
 
-  drawSinglePtBin( db, qglc, qglc_old, tree, 20., 30. );
-  drawSinglePtBin( db, qglc, qglc_old, tree, 30., 40. );
-  drawSinglePtBin( db, qglc, qglc_old, tree, 50., 65. );
-  drawSinglePtBin( db, qglc, qglc_old, tree, 80., 100. );
-  drawSinglePtBin( db, qglc, qglc_old, tree, 200., 250. );
-  drawSinglePtBin( db, qglc, qglc_old, tree, 500., 600. );
+
+  TChain* tree_herwig = new TChain("reducedTree");
+  tree_herwig->Add("/cmsrm/pc25_2/pandolf/MC/Summer12/QCD_Pt-15to3000_TuneEE3C_Flat_8TeV_herwigpp_Summer12_DR53X-PU_S10_START53_V7A-v1_finalQG_withCHS_JEC53X/QG_2ndLevelTree_QCD_Pt-15to3000_TuneEE3C_Flat_8TeV_herwigpp_Summer12_DR53X-PU_S10_START53_V7A-v1_finalQG_withCHS_JEC53X_*.root/reducedTree");
+
+  compareTrees( db, tree, tree_herwig, 20., 30., 0., 2. );
 
   return 0;
 
@@ -732,3 +744,193 @@ void drawRoC( DrawBase* db, float ptMin, float ptMax, const std::string& flag, T
   delete legend;
 }
 
+
+void compareTrees( DrawBase* db, TTree* tree, TTree* tree_herwig, float ptMin, float ptMax, float etaMin, float etaMax ) {
+
+
+  compareSingleVariable( "ptD_QCJet", "p_{T}D", 50, 0., 1.0001, db, tree, tree_herwig, ptMin, ptMax, etaMin, etaMax );
+
+  compareSingleVariable( "qgl", "Quark-Gluon Likelihood Discriminator", 50, 0., 1.0001, db, tree, tree_herwig, ptMin, ptMax, etaMin, etaMax );
+
+
+
+}
+
+
+void compareSingleVariable( const std::string& varName, const std::string& axisName, int nbins, float xmin, float xmax, DrawBase* db, TTree* tree, TTree* tree_herwig, float ptMin, float ptMax, float etaMin, float etaMax ) {
+
+  std::cout << "Herwig-Pythia comparison: " << varName << ", "<< ptMin << " < pt < " << ptMax << " GeV, " << etaMin << " < |eta| < " << etaMax << std::endl;
+
+  TH1D* h1_pythia_quark = new TH1D("pythia_quark", "", nbins, xmin, xmax );
+  TH1D* h1_pythia_gluon = new TH1D("pythia_gluon", "", nbins, xmin, xmax );
+  TH1D* h1_herwig_quark = new TH1D("herwig_quark", "", nbins, xmin, xmax );
+  TH1D* h1_herwig_gluon = new TH1D("herwig_gluon", "", nbins, xmin, xmax );
+
+
+  if( varName != "qgl" ) {
+
+    char selection[500];
+    sprintf( selection, "ptJet>%f && ptJet<%f && abs(etaJet)>%f && abs(etaJet)<%f", ptMin, ptMax, etaMin, etaMax);
+   
+    char selection_quark[500];
+    sprintf( selection_quark, "%s && abs(pdgIdJet)<4", selection );
+    char selection_gluon[500];
+    sprintf( selection_gluon, "%s && pdgIdJet==21", selection );
+
+
+    tree->Project("pythia_quark", varName.c_str(), selection_quark);
+    tree->Project("pythia_gluon", varName.c_str(), selection_gluon);
+    tree_herwig->Project("herwig_quark", varName.c_str(), selection_quark);
+    tree_herwig->Project("herwig_gluon", varName.c_str(), selection_gluon);
+
+  } else {
+
+    QGLikelihoodCalculator *qglc_tmp = new QGLikelihoodCalculator("/afs/cern.ch/work/p/pandolf/public/ReducedHisto_2012.root");
+
+    // first pythia:
+    float pt[20];
+    tree->SetBranchAddress("ptJet", pt);
+    float eta[20];
+    tree->SetBranchAddress("etaJet", eta);
+    int pdgId[20];
+    tree->SetBranchAddress("pdgIdJet", pdgId);
+    float rho;
+    tree->SetBranchAddress("rhoPF", &rho);
+    float ptD_QC[20];
+    tree->SetBranchAddress("ptD_QCJet", ptD_QC);
+    float axis2_QC[20];
+    tree->SetBranchAddress("axis2_QCJet", axis2_QC);
+    int nCharged_QC[20];
+    tree->SetBranchAddress("nChg_QCJet", nCharged_QC);
+    int nNeutral_ptCut[20];
+    tree->SetBranchAddress("nNeutral_ptCutJet", nNeutral_ptCut);
+
+    for( unsigned iEntry=0; iEntry<tree->GetEntries(); ++iEntry ) {
+
+      float qgl_newHisto = qglc_tmp->computeQGLikelihood2012( pt[0], eta[0], rho, nCharged_QC[0]+nNeutral_ptCut[0], ptD_QC[0], axis2_QC[0]);
+    
+      if( fabs(pdgId[0])<4 ) {
+        h1_pythia_quark->Fill( qgl_newHisto );
+      }
+      if( pdgId[0]==21 ) {
+        h1_pythia_gluon->Fill( qgl_newHisto );
+      }
+
+      if( h1_pythia_quark->GetEntries()>10000 && h1_pythia_gluon->GetEntries()>10000 ) break;
+
+    }
+  
+    // then herwig:
+    tree_herwig->SetBranchAddress("ptJet", pt);
+    tree_herwig->SetBranchAddress("etaJet", eta);
+    tree_herwig->SetBranchAddress("pdgIdJet", pdgId);
+    tree_herwig->SetBranchAddress("rhoPF", &rho);
+    tree_herwig->SetBranchAddress("ptD_QCJet", ptD_QC);
+    tree_herwig->SetBranchAddress("axis2_QCJet", axis2_QC);
+    tree_herwig->SetBranchAddress("nChg_QCJet", nCharged_QC);
+    tree_herwig->SetBranchAddress("nNeutral_ptCutJet", nNeutral_ptCut);
+
+
+    for( unsigned iEntry=0; iEntry<tree_herwig->GetEntries(); ++iEntry ) {
+
+      float qgl_newHisto = qglc_tmp->computeQGLikelihood2012( pt[0], eta[0], rho, nCharged_QC[0]+nNeutral_ptCut[0], ptD_QC[0], axis2_QC[0]);
+    
+      if( fabs(pdgId[0])<4 ) {
+        h1_herwig_quark->Fill( qgl_newHisto );
+      }
+      if( pdgId[0]==21 ) {
+        h1_herwig_gluon->Fill( qgl_newHisto );
+      }
+
+      if( h1_herwig_quark->GetEntries()>10000 && h1_herwig_gluon->GetEntries()>10000 ) break;
+
+    }
+
+    delete qglc_tmp;
+
+  } // if var == qgl
+
+
+  h1_pythia_quark->SetLineColor(38);
+  h1_pythia_quark->SetLineWidth(2);
+  h1_pythia_quark->SetFillColor(38);
+  h1_pythia_quark->SetFillStyle(3005);
+
+  h1_pythia_gluon->SetLineColor(46);
+  h1_pythia_gluon->SetLineWidth(2);
+  h1_pythia_gluon->SetFillColor(46);
+  h1_pythia_gluon->SetFillStyle(3004);
+
+  h1_herwig_quark->SetMarkerStyle(20);
+  //h1_herwig_quark->SetMarkerSize(1.5);
+  h1_herwig_quark->SetMarkerColor(kBlue+2);
+
+  h1_herwig_gluon->SetMarkerStyle(21);
+  //h1_herwig_gluon->SetMarkerSize(1.5);
+  h1_herwig_gluon->SetMarkerColor(kRed+2);
+
+  float yMax_quark = h1_pythia_quark->GetMaximum()/h1_pythia_quark->Integral();
+  float yMax_gluon = h1_pythia_gluon->GetMaximum()/h1_pythia_gluon->Integral();
+
+  float yMax = (yMax_quark>yMax_gluon) ? yMax_quark : yMax_gluon;
+  yMax *= 1.3;
+
+
+  TH2D* h2_axes = new TH2D("axes", "", 10, xmin, xmax, 10, 0., yMax );
+  h2_axes->SetXTitle( axisName.c_str() );
+  h2_axes->SetYTitle( "Normalized to Unity" );
+
+  TCanvas* c1 = new TCanvas("c1", "", 600, 600);
+  c1->cd();
+
+  h2_axes->Draw();
+  h1_pythia_quark->DrawNormalized("same");
+  h1_pythia_gluon->DrawNormalized("same");
+  h1_herwig_quark->DrawNormalized("p same");
+  h1_herwig_gluon->DrawNormalized("p same");
+
+  char legendTitle[300];
+  sprintf( legendTitle, "%.0f < p_{T} < %.0f GeV", ptMin, ptMax );
+  TLegend* legend = new TLegend(0.58, 0.6, 0.9, 0.9, legendTitle);
+  legend->SetTextSize(0.04);
+  legend->SetFillColor(0);
+  legend->AddEntry( h1_pythia_quark, "Quarks (Pythia)", "F" );
+  legend->AddEntry( h1_pythia_gluon, "Gluons (Pythia)", "F" );
+  legend->AddEntry( h1_herwig_quark, "Quarks (Herwig)", "P" );
+  legend->AddEntry( h1_herwig_gluon, "Gluons (Herwig)", "P" );
+  legend->Draw("same");
+
+  TPaveText* labelTop = db->get_labelTop();
+  labelTop->Draw("same");
+
+
+  char labelText[300];
+  if( etaMin > 0. )
+    sprintf( labelText, "%.0f < |#eta| < %.0f", etaMin, etaMax );
+  else
+    sprintf( labelText, "|#eta| < %.0f", etaMax );
+
+  TPaveText* label = new TPaveText( 0.2, 0.83, 0.4, 0.9, "brNDC" );
+  label->SetTextSize(0.04);
+  label->SetFillColor(0);
+  label->AddText(labelText);
+  if( labelText!="" )
+    label->Draw("same");
+
+  char canvasName[1000];
+  sprintf( canvasName, "%s/herwigPythia_%s_pt%.0f_%.0f_eta%.0f_%.0f.eps", db->get_outputdir().c_str(), varName.c_str(), ptMin, ptMax, 10.*etaMin, 10.*etaMax);
+
+  c1->SaveAs(canvasName);
+  std::string canvasName_str(canvasName);
+  std::string command = "epstopdf " + canvasName_str;
+  system( command.c_str() );
+
+  delete legend;
+  delete c1;
+  delete h2_axes;
+  delete h1_pythia_quark;
+  delete h1_pythia_gluon;
+  delete h1_herwig_quark;
+  delete h1_herwig_gluon;
+
+}
