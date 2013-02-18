@@ -258,7 +258,7 @@ rhoMax=floor(rhoMax);
 
 for(unsigned int i=0;i<vars.size();i++){
 //get Histo
-	float Qi,Gi,mQ,mG;
+	float Qi(1),Gi(1),mQ,mG;
 	#ifdef DEBUG
 	fprintf(stderr,"var %d = %s, value = %f\n",i,varName[i].c_str(), vars[i]);
 	#endif
