@@ -22,7 +22,7 @@ class QGLikelihoodCalculator {
 
  public:
 
-  QGLikelihoodCalculator( const std::string& fileName="QG_QCD_Pt-15to3000_TuneZ2_Flat_7TeV_pythia6_Summer11-PU_S3_START42_V11-v2.root", unsigned nPtBins=21, unsigned int nRhoBins=25 );
+  QGLikelihoodCalculator( const std::string& fileName="/afs/cern.ch/work/p/pandolf/public/ReducedHisto_2012.root", unsigned nPtBins=21, unsigned int nRhoBins=45 );
    ~QGLikelihoodCalculator();
 
   //float computeQGLikelihood( float pt, int nCharged, int nNeutral, float ptD, float rmsCand=-1. );
