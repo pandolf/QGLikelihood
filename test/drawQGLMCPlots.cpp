@@ -193,10 +193,9 @@ tree->Add("/cmsrm/pc25_2/pandolf/MC/Summer12/QCD_Pt-15to3000_TuneZ2_Flat_8TeV_py
   //drawOneVariable( db, tree, "nNeutralJet", "Neutral Multiplicity", 50, 0., 100.);
 
     QGLikelihoodCalculator* qglc, *qglc_old;
-    //if( Summer12 ) qglc = new QGLikelihoodCalculator("/afs/cern.ch/work/p/pandolf/CMSSW_5_3_6/src/QG/QGLikelihood/test/Histos_2012.root");
     //if( Summer12 ) qglc = new QGLikelihoodCalculator("/afs/cern.ch/work/p/pandolf/public/Histos_2012_NEW.root");
-    if( Summer12 ) qglc = new QGLikelihoodCalculator("/afs/cern.ch/work/p/pandolf/public/ReducedHisto_2012.root");
     //if( Summer12 ) qglc = new QGLikelihoodCalculator("/afs/cern.ch/work/p/pandolf/public/ReducedHistos_prova.root");
+    if( Summer12 ) qglc = new QGLikelihoodCalculator("/afs/cern.ch/work/p/pandolf/public/ReducedHisto_2012.root");
     else           qglc = new QGLikelihoodCalculator("/afs/cern.ch/work/p/pandolf/CMSSW_5_3_6/src/QG/QGLikelihood/test/Histos.root");
   
     qglc_old = new QGLikelihoodCalculator("/afs/cern.ch/work/p/pandolf/public/Histos_2012_NEW.root");
