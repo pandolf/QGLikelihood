@@ -419,14 +419,14 @@ void drawSinglePtBin( DrawBase* db, QGLikelihoodCalculator* qglc, QGLikelihoodCa
 
     if( njet==0 ) continue;
 
-    //if( pt[0]<ptMin || pt[0]>ptMax ) continue;
-      float qgl_newHisto = qglc->computeQGLikelihood2012( pt[0], eta[0], rho, nCharged_QC[0]+nNeutral_ptCut[0], ptD_QC[0], axis2_QC[0]);
+    if( pt[0]<ptMin || pt[0]>ptMax ) continue;
 
     if( ptD_QC[0]>0.9 ) continue; //this is to cut out anomalous (~single particle) jets
 
     float qgl_new = qglJet[0];
 
-    if( fabs(eta[0])<2. && h1_qgl_old_gluon->GetEntries()<10000 && h1_qgl_old_quark->GetEntries()<10000 ) { //save time
+    //if( fabs(eta[0])<2. && h1_qgl_old_gluon->GetEntries()<10000 && h1_qgl_old_quark->GetEntries()<10000 ) { //save time
+    if( fabs(eta[0])<2. ) {
 
       float qgl_old = qglc_old->computeQGLikelihoodPU( pt[0], rho, nCharged[0], nNeutral[0], ptD[0]);
       float qgl_newHisto = qglc->computeQGLikelihood2012( pt[0], eta[0], rho, nCharged_QC[0]+nNeutral_ptCut[0], ptD_QC[0], axis2_QC[0]);
@@ -761,11 +761,6 @@ void drawPlot( DrawBase* db, TH1D* h1_gluon, TH1D* h1_quark, std::string name, f
 
   h2_axes->Draw();
 
-  h1_quark->DrawNormalized("same");
-  h1_gluon->DrawNormalized("same");
-  if( h1_third!=0 ) 
-    h1_third->DrawNormalized("same");
-
 
 
   float xMin_legend = (isMLP) ? 0.2 : 0.55;
@@ -783,6 +778,12 @@ void drawPlot( DrawBase* db, TH1D* h1_gluon, TH1D* h1_quark, std::string name, f
     legend->AddEntry( h1_third, third_legendName.c_str(), "F");
   legend->Draw("same");
   
+
+  h1_quark->DrawNormalized("same");
+  h1_gluon->DrawNormalized("same");
+  if( h1_third!=0 ) 
+    h1_third->DrawNormalized("same");
+
 
 
   TPaveText* labelTop = db->get_labelTop();
