@@ -77,7 +77,6 @@ int main() {
 
   drawQuarkFraction_vs_pt( db, tree, tree_herwig, 3., 5. );
   drawQuarkFraction_vs_pt( db, tree, tree_herwig, 0., 2. );
-exit(1);
 
   compareTrees( db, tree, tree_herwig, 30., 40., 0., 2. );
   compareTrees( db, tree, tree_herwig, 80., 100., 0., 2. );
@@ -1118,8 +1117,13 @@ void compareSingleVariable( std::string varName, const std::string& axisName, in
 
 
   TString varName_tstr(varName);
-  if( varName_tstr.BeginsWith("qg") )
-    drawRoC(db, ptMin, ptMax, "_pythiaHerwig", h1_pythia_gluon, h1_pythia_quark, h1_herwig_gluon, h1_herwig_quark, 0, 0, labelText, "Herwig++", "Pythia 6" );
+  if( varName_tstr.BeginsWith("qg") ) {
+    if( etaMin>2.5 ) {
+      drawRoC(db, ptMin, ptMax, "_pythiaHerwig_F", h1_pythia_gluon, h1_pythia_quark, h1_herwig_gluon, h1_herwig_quark, 0, 0, labelText, "Herwig++", "Pythia 6" );
+    } else {
+      drawRoC(db, ptMin, ptMax, "_pythiaHerwig", h1_pythia_gluon, h1_pythia_quark, h1_herwig_gluon, h1_herwig_quark, 0, 0, labelText, "Herwig++", "Pythia 6" );
+    }
+  }
   
 
   delete legend;
@@ -1138,7 +1142,7 @@ void compareSingleVariable( std::string varName, const std::string& axisName, in
 
 void drawQuarkFraction_vs_pt( DrawBase* db, TTree* tree, TTree* tree_herwig, float etaMin, float etaMax ) {
 
-  float xMax = (fabs(etaMin)>2.5) ? 300. : 2000.;
+  float xMax = (fabs(etaMin)>2.5) ? 210. : 2000.;
 
   Double_t bins[21];
 
@@ -1383,12 +1387,9 @@ void drawQuarkFraction_vs_pt( DrawBase* db, TTree* tree, TTree* tree_herwig, flo
   h2_axes->GetXaxis()->SetMoreLogLabels();
   h2_axes->GetXaxis()->SetNoExponent();
   h2_axes->SetXTitle("#hat{p}_{T} [GeV]");
-  h2_axes->SetYTitle("Fraction of Events");
+  h2_axes->SetYTitle("Flavor Fraction");
 
   h2_axes->Draw();
-
-  legend->Draw("same");
-  legend_herwig->Draw("same");
 
   h1_gluonFraction_herwig->Draw("p same");
   h1_quarkFraction_herwig->Draw("p same");
@@ -1397,6 +1398,9 @@ void drawQuarkFraction_vs_pt( DrawBase* db, TTree* tree, TTree* tree_herwig, flo
   h1_quarkFraction_pythia->Draw("p same");
   h1_pileupFraction_pythia->Draw("p same");
   h1_undefFraction_pythia->Draw("p same");
+
+  legend->Draw("same");
+  legend_herwig->Draw("same");
 
   TPaveText* labelTop = db->get_labelTop();
   labelTop->Draw("same");
