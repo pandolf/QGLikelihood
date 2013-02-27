@@ -75,8 +75,8 @@ int main() {
   TChain* tree_herwig = new TChain("reducedTree");
   tree_herwig->Add("/cmsrm/pc25_2/pandolf/MC/Summer12/QCD_Pt-15to3000_TuneEE3C_Flat_8TeV_herwigpp_Summer12_DR53X-PU_S10_START53_V7A-v1_finalQG_withCHS_JEC53X/QG_2ndLevelTree_QCD_Pt-15to3000_TuneEE3C_Flat_8TeV_herwigpp_Summer12_DR53X-PU_S10_START53_V7A-v1_finalQG_withCHS_JEC53X_*.root/reducedTree");
 
-  drawQuarkFraction_vs_pt( db, tree, tree_herwig, 0., 2. );
   drawQuarkFraction_vs_pt( db, tree, tree_herwig, 3., 5. );
+  drawQuarkFraction_vs_pt( db, tree, tree_herwig, 0., 2. );
 exit(1);
 
   compareTrees( db, tree, tree_herwig, 30., 40., 0., 2. );
@@ -387,6 +387,7 @@ void drawSinglePtBin( DrawBase* db, QGLikelihoodCalculator* qglc, QGLikelihoodCa
   }
 
   drawRoC(db, ptMin, ptMax, "", h1_qgl_newHisto_gluon, h1_qgl_newHisto_quark, h1_qgl_old_gluon, h1_qgl_old_quark, 0, 0, "|#eta| < 2");
+
   drawRoC(db, ptMin, ptMax, "_withMLP", h1_qgl_newHisto_gluon, h1_qgl_newHisto_quark, h1_qgl_old_gluon, h1_qgl_old_quark, h1_qgMLP_gluon, h1_qgMLP_quark, "|#eta| < 2");
   drawRoC(db, ptMin, ptMax, "_T", h1_qgl_newHisto_T_gluon, h1_qgl_newHisto_T_quark, h1_qgl_old_T_gluon, h1_qgl_old_T_quark, h1_qgMLP_T_gluon, h1_qgMLP_T_quark, "2 < |#eta| < 2.5");
   drawRoC(db, ptMin, ptMax, "_F", h1_qgl_newHisto_F_gluon, h1_qgl_newHisto_F_quark, 0, 0, h1_qgMLP_F_gluon, h1_qgMLP_F_quark, "3 < |#eta| < 5");
@@ -1118,7 +1119,7 @@ void compareSingleVariable( std::string varName, const std::string& axisName, in
 
   TString varName_tstr(varName);
   if( varName_tstr.BeginsWith("qg") )
-    drawRoC(db, ptMin, ptMax, "_pythiaHerwig", h1_pythia_gluon, h1_pythia_quark, h1_herwig_gluon, h1_herwig_quark, 0, 0, labelText, "Pythia 6", "Herwig++");
+    drawRoC(db, ptMin, ptMax, "_pythiaHerwig", h1_pythia_gluon, h1_pythia_quark, h1_herwig_gluon, h1_herwig_quark, 0, 0, labelText, "Herwig++", "Pythia 6" );
   
 
   delete legend;
@@ -1137,10 +1138,11 @@ void compareSingleVariable( std::string varName, const std::string& axisName, in
 
 void drawQuarkFraction_vs_pt( DrawBase* db, TTree* tree, TTree* tree_herwig, float etaMin, float etaMax ) {
 
+  float xMax = (fabs(etaMin)>2.5) ? 300. : 2000.;
 
   Double_t bins[21];
 
-  fitTools::getBins_int( 21, bins, 20., 2000.);
+  fitTools::getBins_int( 21, bins, 20., xMax);
 
 
 
@@ -1330,11 +1332,11 @@ void drawQuarkFraction_vs_pt( DrawBase* db, TTree* tree, TTree* tree_herwig, flo
   h1_gluonFraction_pythia->SetMarkerColor(46);
   h1_gluonFraction_pythia->SetMarkerSize(1.6);
 
-  h1_pileupFraction_pythia->SetMarkerStyle(22);
+  h1_pileupFraction_pythia->SetMarkerStyle(23);
   h1_pileupFraction_pythia->SetMarkerColor(29);
   h1_pileupFraction_pythia->SetMarkerSize(1.6);
 
-  h1_undefFraction_pythia->SetMarkerStyle(23);
+  h1_undefFraction_pythia->SetMarkerStyle(22);
   h1_undefFraction_pythia->SetMarkerColor(kGray+1);
   h1_undefFraction_pythia->SetMarkerSize(1.6);
 
@@ -1346,6 +1348,11 @@ void drawQuarkFraction_vs_pt( DrawBase* db, TTree* tree, TTree* tree_herwig, flo
   h1_gluonFraction_herwig->SetMarkerColor(46);
   h1_gluonFraction_herwig->SetMarkerSize(1.6);
 
+  h1_undefFraction_herwig->SetMarkerStyle(26);
+  h1_undefFraction_herwig->SetMarkerColor(kGray+1);
+  h1_undefFraction_herwig->SetMarkerSize(1.6);
+
+
 
   char legendTitle[200];
   if( etaMin==0. )
@@ -1353,26 +1360,26 @@ void drawQuarkFraction_vs_pt( DrawBase* db, TTree* tree, TTree* tree_herwig, flo
   else
     sprintf( legendTitle, "%.0f < |#eta| < %.0f", etaMin, etaMax );
 
-  TLegend* legend = new TLegend(0.25, 0.68, 0.55, 0.93, legendTitle );
+  TLegend* legend = new TLegend(0.2, 0.68, 0.5, 0.93, legendTitle );
   legend->SetTextSize(0.038);
   legend->SetFillColor(0);
   legend->AddEntry( h1_quarkFraction_pythia, "Quark", "P" );
   legend->AddEntry( h1_gluonFraction_pythia, "Gluon", "P" );
-  legend->AddEntry( h1_pileupFraction_pythia, "Pile Up", "P" );
   legend->AddEntry( h1_undefFraction_pythia, "Undefined", "P" );
+  legend->AddEntry( h1_pileupFraction_pythia, "Pile Up", "P" );
 
-  TLegend* legend_herwig = new TLegend(0.53, 0.75, 0.83, 0.87 );
+  TLegend* legend_herwig = new TLegend(0.47, 0.75, 0.77, 0.93 );
   legend_herwig->SetTextSize(0.038);
   legend_herwig->SetFillColor(0);
   legend_herwig->AddEntry( h1_quarkFraction_herwig, "Quark (Herwig)", "P" );
   legend_herwig->AddEntry( h1_gluonFraction_herwig, "Gluon (Herwig)", "P" );
+  legend_herwig->AddEntry( h1_undefFraction_herwig, "Undefined (Herwig)", "P" );
 
   TCanvas* c1 = new TCanvas("c1", "", 600, 600);
   c1->cd();
   c1->SetLogx();
 
-  float xMax = (fabs(etaMin)>2.5) ? 250. : 2000.;
-  TH2D* h2_axes = new TH2D("axes", "", 10, 20., xMax, 10, 0., 1.1);
+  TH2D* h2_axes = new TH2D("axes", "", 10, 20., xMax, 10, 0., 1.15);
   h2_axes->GetXaxis()->SetMoreLogLabels();
   h2_axes->GetXaxis()->SetNoExponent();
   h2_axes->SetXTitle("#hat{p}_{T} [GeV]");
@@ -1385,6 +1392,7 @@ void drawQuarkFraction_vs_pt( DrawBase* db, TTree* tree, TTree* tree_herwig, flo
 
   h1_gluonFraction_herwig->Draw("p same");
   h1_quarkFraction_herwig->Draw("p same");
+  h1_undefFraction_herwig->Draw("p same");
   h1_gluonFraction_pythia->Draw("p same");
   h1_quarkFraction_pythia->Draw("p same");
   h1_pileupFraction_pythia->Draw("p same");
